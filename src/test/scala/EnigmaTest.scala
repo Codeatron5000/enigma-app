@@ -1,5 +1,5 @@
+import enigma.machine.{AlphabetOutOBoundsException, DuplicateRotorsException, Enigma, PlugBoardConflictException, Reflector, Rotor}
 import org.scalatest.FunSuite
-import enigma.{AlphabetOutOBoundsException, DuplicateRotorsException, Enigma, PlugBoardConflictException, Reflector, Rotor}
 
 class EnigmaTest extends FunSuite {
   test("The enigma package can encode a value") {
@@ -8,7 +8,7 @@ class EnigmaTest extends FunSuite {
       Rotor.II(4),
       Rotor.III(5),
       Reflector.B,
-      "EJ OY IV AQ KW FX MT PS LU BD".split(" ").map(subs => Tuple2(subs.charAt(0), subs.charAt(1)))
+      "EJ OY IV AQ KW FX MT PS LU BD".split(" ").toSeq.map(subs => Tuple2(subs.charAt(0), subs.charAt(1)))
     )
 
     enigma.setPositions(5, 4, 3)
@@ -30,7 +30,7 @@ class EnigmaTest extends FunSuite {
       Rotor.II(4),
       Rotor.III(5),
       Reflector.B,
-      "EJ OY IV AQ KW FX MT PS LU BD".split(" ").map(subs => Tuple2(subs.charAt(0), subs.charAt(1)))
+      "EJ OY IV AQ KW FX MT PS LU BD".split(" ").toSeq.map(subs => Tuple2(subs.charAt(0), subs.charAt(1)))
     )
 
     enigma.setPositions(5, 5, 23)
@@ -49,7 +49,7 @@ class EnigmaTest extends FunSuite {
         Rotor.I(4),
         Rotor.III(5),
         Reflector.B,
-        "EJ OY IV AQ KW FX MT PS LU BD".split(" ").map(subs => Tuple2(subs.charAt(0), subs.charAt(1)))
+        "EJ OY IV AQ KW FX MT PS LU BD".split(" ").toSeq.map(subs => Tuple2(subs.charAt(0), subs.charAt(1)))
       )
     }
   }
@@ -66,7 +66,7 @@ class EnigmaTest extends FunSuite {
       Rotor.II(4),
       Rotor.III(5),
       Reflector.B,
-      "EJ OY IV AQ KW FX MT PS LU BD".split(" ").map(subs => Tuple2(subs.charAt(0), subs.charAt(1)))
+      "EJ OY IV AQ KW FX MT PS LU BD".split(" ").toSeq.map(subs => Tuple2(subs.charAt(0), subs.charAt(1)))
     )
 
     assertThrows[AlphabetOutOBoundsException] {
@@ -81,7 +81,7 @@ class EnigmaTest extends FunSuite {
         Rotor.II(4),
         Rotor.III(5),
         Reflector.B,
-        "EJ EK".split(" ").map(subs => Tuple2(subs.charAt(0), subs.charAt(1)))
+        "EJ EK".split(" ").toSeq.map(subs => Tuple2(subs.charAt(0), subs.charAt(1)))
       )
     }
   }
@@ -92,18 +92,18 @@ class EnigmaTest extends FunSuite {
       Rotor.III('R'),
       Rotor.V('D'),
       Reflector.C,
-      "BY CP DF EZ GU HL JO KN QR SW".split(" ").map(subs => Tuple2(subs.charAt(0), subs.charAt(1)))
+      "BY CP DF EZ GU HL JO KN QR SW".split(" ").toSeq.map(subs => Tuple2(subs.charAt(0), subs.charAt(1)))
     )
 
     enigma.setPositions('U', 'X', 'I')
 
-    val cipher = "TOPSECRETMESSAGE".toCharArray.map(enigma.encode)
+    val cipher = "TOPSECRETMESSAGE".toCharArray.toSeq.map(enigma.encode)
 
     assert(cipher.mkString == "ZCHTFLESVDLVPREL")
 
     enigma.setPositions('U', 'X', 'I')
 
-    val message = "ZCHTFLESVDLVPREL".toCharArray.map(enigma.encode)
+    val message = "ZCHTFLESVDLVPREL".toCharArray.toSeq.map(enigma.encode)
 
     assert(message.mkString == "TOPSECRETMESSAGE")
   }

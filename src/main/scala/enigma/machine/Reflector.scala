@@ -1,4 +1,4 @@
-package enigma
+package enigma.machine
 
 sealed abstract class ReflectorWiring(val wiring: String)
 

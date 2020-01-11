@@ -1,4 +1,4 @@
-package enigma
+package enigma.machine
 
 sealed abstract class Rotor(setting: Int) {
   val wiring: String
@@ -17,10 +17,10 @@ sealed abstract class Rotor(setting: Int) {
   }
 
   lazy private val sequence: Seq[Int] = {
-    val sequence = wiring.toCharArray
-    sequence.slice(26 - setting + 1, 26) ++
-      sequence.slice(0, 26 - setting + 1)
-  }.map(Alphabet.indexOf)
+    val sequence = wiring.toCharArray.toSeq
+    (sequence.slice(26 - setting + 1, 26) ++
+      sequence.slice(0, 26 - setting + 1)).map(Alphabet.indexOf)
+  }
 
   def shouldCarry(): Boolean = position == turnover
   def shouldCarry(nextRotor: Rotor): Boolean = {

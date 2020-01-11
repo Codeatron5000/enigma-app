@@ -1,4 +1,4 @@
-package enigma
+package enigma.machine
 
 case class Enigma(slowRotor: Rotor, mediumRotor: Rotor, fastRotor: Rotor, reflector: Reflector, substitutions: Seq[(Char, Char)]) {
   private val slowClass = slowRotor.getClass
@@ -9,7 +9,7 @@ case class Enigma(slowRotor: Rotor, mediumRotor: Rotor, fastRotor: Rotor, reflec
     throw new DuplicateRotorsException
   }
 
-  val plugBoard: PlugBoard = PlugBoard(substitutions)
+  var plugBoard: PlugBoard = PlugBoard(substitutions)
 
   def setPositions(slowPosition: Char, mediumPosition: Char, fastPosition: Char): Unit = {
     slowRotor.setPosition(slowPosition)

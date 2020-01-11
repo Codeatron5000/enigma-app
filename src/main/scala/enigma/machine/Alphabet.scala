@@ -1,7 +1,7 @@
-package enigma
+package enigma.machine
 
 object Alphabet {
-  val alphabet: Array[Char] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray
+  val alphabet: Seq[Char] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray.toSeq
   def indexOf(c: Char): Int = alphabet.indexOf(c)
   def apply(i: Int): Char = alphabet(i)
 }
