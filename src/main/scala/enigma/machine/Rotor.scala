@@ -33,7 +33,7 @@ sealed abstract class Rotor(setting: Int) {
   }
 
   def setPosition(newPosition: Int): Unit = {
-    if (newPosition > 26 || newPosition < 0) {
+    if (newPosition > 26 || newPosition < 1) {
       throw new AlphabetOutOBoundsException
     }
     position = newPosition

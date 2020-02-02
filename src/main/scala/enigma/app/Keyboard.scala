@@ -23,6 +23,28 @@ class Keyboard(onKeyPress: Char => Unit, onKeyRelease: Char => Unit) extends VBo
     }) : _*
   )
 
+  private var pressedKey: Option[Char] = None
+
+  def pressKey(letter: Char): Unit = {
+    if (keys.contains(letter) && pressedKey.isEmpty) {
+      val circle = keys(letter)
+      circle.strokeWidth = 4
+      circle.radius = 14
+      onKeyPress(letter)
+      pressedKey = Some(letter)
+    }
+  }
+
+  def releaseKey(letter: Char): Unit = {
+    if (keys.contains(letter) && pressedKey.nonEmpty) {
+      val circle = keys(letter)
+      circle.strokeWidth = 2
+      circle.radius = 15
+      onKeyRelease(letter)
+      pressedKey = None
+    }
+  }
+
   children = KeypadOrder().map(row => {
     new HBox {
       alignment = Pos.Center
@@ -40,14 +62,12 @@ class Keyboard(onKeyPress: Char => Unit, onKeyRelease: Char => Unit) extends VBo
           )
           cursor = Cursor.Hand
           onMousePressed = _ => {
-            circle.strokeWidth = 4
-            circle.radius = 14
-            onKeyPress(c)
+            pressKey(c)
           }
           onMouseReleased = _ => {
             circle.strokeWidth = 2
             circle.radius = 15
-            onKeyRelease(c)
+            releaseKey(c)
           }
         }
       })

@@ -3,7 +3,7 @@ package enigma.app
 import enigma.machine.{Alphabet, Enigma, Reflector, Rotor}
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
-import scalafx.beans.property.StringProperty
+import scalafx.beans.property.{IntegerProperty, StringProperty}
 import scalafx.geometry.Pos
 import scalafx.scene.layout.VBox
 import scalafx.scene.Scene
@@ -16,7 +16,7 @@ object EnigmaApp extends JFXApp {
     Rotor.III('A'),
   )
 
-  private val rotorPositions = rotors.map(rotor => StringProperty(Alphabet(rotor.position - 1).toString))
+  private val rotorPositions = rotors.map(rotor => IntegerProperty(rotor.position))
 
   private val enigma = Enigma(
     rotors.head,
@@ -34,7 +34,7 @@ object EnigmaApp extends JFXApp {
     c => {
       encodedValue() = enigma.encode(c).toString
       rotors.indices.foreach(i => {
-        rotorPositions(i)() = Alphabet(rotors(i).position - 1).toString
+        rotorPositions(i)() = rotors(i).position
       })
     },
     _ => encodedValue() = null
@@ -48,12 +48,12 @@ object EnigmaApp extends JFXApp {
       private val layout: VBox = new VBox {
         minWidth <== enigmaScene.width
         maxWidth <== enigmaScene.width
-        layoutY = 40
-        spacing = 40
+        layoutY = 30
+        spacing = 30
         alignment = Pos.TopCenter
 
         children = Seq(
-          new RotorCase(rotorPositions),
+          new RotorCase(rotorPositions, rotors),
           new LightBox(encodedValue),
           keyboard,
           new PlugBoard(
@@ -67,21 +67,23 @@ object EnigmaApp extends JFXApp {
 
       onKeyPressed = e => {
         val c = e.getCode.getChar.toUpperCase.charAt(0)
-        if (Alphabet.alphabet.contains(c) && encodedValue() == null) {
-          encodedValue() = enigma.encode(c).toString
-          rotors.indices.foreach(i => {
-            rotorPositions(i)() = Alphabet(rotors(i).position - 1).toString
-          })
-          keyboard.keys(c).strokeWidth = 4
-          keyboard.keys(c).radius = 14
-        }
+        keyboard.pressKey(c)
+//        if (Alphabet.alphabet.contains(c) && encodedValue() == null) {
+//          encodedValue() = enigma.encode(c).toString
+//          rotors.indices.foreach(i => {
+//            rotorPositions(i)() = Alphabet(rotors(i).position - 1).toString
+//          })
+//          keyboard.keys(c).strokeWidth = 4
+//          keyboard.keys(c).radius = 14
+//        }
       }
 
       onKeyReleased = e => {
         val c = e.getCode.getChar.toUpperCase.charAt(0)
-        encodedValue() = null
-        keyboard.keys(c).strokeWidth = 2
-        keyboard.keys(c).radius = 15
+//        encodedValue() = null
+//        keyboard.keys(c).strokeWidth = 2
+//        keyboard.keys(c).radius = 15
+        keyboard.releaseKey(c)
       }
     }
   }

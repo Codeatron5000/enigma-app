@@ -1,38 +1,32 @@
 package enigma.app
 
-import scalafx.beans.property.StringProperty
-import scalafx.geometry.Pos
+import enigma.machine.{Rotor => MachineRotor}
+import enigma.machine.Alphabet
+import scalafx.beans.property.{IntegerProperty, StringProperty}
+import scalafx.geometry.{Point3D, Pos}
 import scalafx.scene.layout.{HBox, StackPane}
 import scalafx.scene.paint.Color.{Black, White, gray}
-import scalafx.scene.shape.Rectangle
+import scalafx.scene.shape.{Cylinder, DrawMode, Rectangle}
 import scalafx.scene.text.Text
+import scalafx.scene.transform.Rotate
 
-class RotorCase(rotorPositions: Seq[StringProperty]) extends StackPane {
+import scala.collection.mutable
+
+class RotorCase(rotorPositions: Seq[IntegerProperty], rotors: Seq[MachineRotor]) extends StackPane {
   children = Seq(
     new Rectangle {
-      height = 100
-      width = 250
+      height = 220
+      width = 300
       fill = Black
     },
     new HBox {
       alignment = Pos.Center
-      spacing = 40
-      children = rotorPositions.map(position => {
-        new StackPane {
-          children = Seq(
-            new Rectangle {
-              height = 40
-              width = 20
-              strokeWidth = 3
-              stroke = gray(0.4)
-              fill = gray(0.3)
-            },
-            new Text {
-              text <== position
-              fill = White
-            }
-          )
-        }
+      spacing = 50
+      children = rotorPositions.indices.map(i => {
+        val position = rotorPositions(i)
+        val rotor = new Rotor(position(), pos => rotors(i).setPosition(pos))
+        position.onChange((_, _, v) => rotor.rotateTo(v.intValue()))
+        rotor
       })
     }
   )
