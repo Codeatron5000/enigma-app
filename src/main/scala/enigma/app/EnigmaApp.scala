@@ -1,16 +1,13 @@
 package enigma.app
 
-import enigma.machine.{Alphabet, Enigma, Reflector, Rotor}
+import enigma.machine.{Enigma, Reflector, Rotor}
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.beans.property.{IntegerProperty, StringProperty}
 import scalafx.geometry.Pos
-import scalafx.scene.layout.{HBox, StackPane, VBox}
-import scalafx.scene.{Cursor, Scene}
-import scalafx.scene.paint.Color
+import scalafx.scene.Scene
+import scalafx.scene.layout.VBox
 import scalafx.scene.paint.Color._
-import scalafx.scene.shape.Rectangle
-import scalafx.scene.transform.Rotate
 
 object EnigmaApp extends JFXApp {
   private val rotors = Seq(
