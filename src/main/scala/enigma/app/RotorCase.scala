@@ -4,6 +4,7 @@ import enigma.machine.{Rotor => MachineRotor}
 import scalafx.animation.{KeyFrame, KeyValue, Timeline}
 import scalafx.beans.property.IntegerProperty
 import scalafx.geometry.Pos
+import scalafx.scene.Cursor
 import scalafx.scene.layout.{HBox, StackPane}
 import scalafx.scene.paint.Color
 import scalafx.scene.paint.Color.Black
@@ -19,7 +20,7 @@ class RotorCase(rotorPositions: Seq[IntegerProperty], rotors: Seq[MachineRotor])
   }
 
   private val holes = (0 until 3).map(i => {
-    Rectangle(38 + 90 * i, 98, 22, 25)
+    Rectangle(89 + 70 * i, 98, 22, 25)
   })
 
   private val borders = (0 until 3).map(_ => {
@@ -43,7 +44,7 @@ class RotorCase(rotorPositions: Seq[IntegerProperty], rotors: Seq[MachineRotor])
     },
     new HBox {
       alignment = Pos.Center
-      spacing = 50
+      spacing = 30
       private val cylinders = rotorPositions.indices.map(i => {
         val position = rotorPositions(i)
         val rotor = new Rotor(position(), pos => rotors(i).setPosition(pos))
@@ -51,7 +52,10 @@ class RotorCase(rotorPositions: Seq[IntegerProperty], rotors: Seq[MachineRotor])
         rotor
       })
 
-      children = cylinders
+      children = new Cylinder {
+        override def sectionWidth = 30
+        override def sectionStroke: Option[Color] = None
+      } +: cylinders
     },
     new StackPane {cover =>
       private var open = false
@@ -63,6 +67,8 @@ class RotorCase(rotorPositions: Seq[IntegerProperty], rotors: Seq[MachineRotor])
       }
 
       transforms.add(rotation)
+
+      cursor = Cursor.OpenHand
 
       onMouseClicked = _ => {
         Timeline(
@@ -87,8 +93,8 @@ class RotorCase(rotorPositions: Seq[IntegerProperty], rotors: Seq[MachineRotor])
         sheet,
         new HBox {
           alignment = Pos.Center
-          spacing = 60
-          translateX = -9
+          spacing = 40
+          translateX = 20
           children = borders
         }
       )
