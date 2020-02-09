@@ -4,7 +4,8 @@ import enigma.machine.{Rotor => MachineRotor}
 import enigma.machine.Alphabet
 import scalafx.beans.property.{IntegerProperty, StringProperty}
 import scalafx.geometry.{Point3D, Pos}
-import scalafx.scene.layout.{HBox, StackPane}
+import scalafx.scene.input.KeyCode.Control
+import scalafx.scene.layout.{HBox, Region, StackPane}
 import scalafx.scene.paint.Color.{Black, White, gray}
 import scalafx.scene.shape.{Cylinder, DrawMode, Rectangle}
 import scalafx.scene.text.Text
@@ -22,12 +23,14 @@ class RotorCase(rotorPositions: Seq[IntegerProperty], rotors: Seq[MachineRotor])
     new HBox {
       alignment = Pos.Center
       spacing = 50
-      children = rotorPositions.indices.map(i => {
+      private val cylinders = rotorPositions.indices.map(i => {
         val position = rotorPositions(i)
         val rotor = new Rotor(position(), pos => rotors(i).setPosition(pos))
         position.onChange((_, _, v) => rotor.rotateTo(v.intValue()))
         rotor
       })
+
+      children = cylinders
     }
   )
 }

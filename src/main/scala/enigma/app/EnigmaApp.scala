@@ -5,9 +5,12 @@ import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.beans.property.{IntegerProperty, StringProperty}
 import scalafx.geometry.Pos
-import scalafx.scene.layout.VBox
-import scalafx.scene.Scene
+import scalafx.scene.layout.{HBox, StackPane, VBox}
+import scalafx.scene.{Cursor, Scene}
+import scalafx.scene.paint.Color
 import scalafx.scene.paint.Color._
+import scalafx.scene.shape.Rectangle
+import scalafx.scene.transform.Rotate
 
 object EnigmaApp extends JFXApp {
   private val rotors = Seq(
@@ -68,21 +71,10 @@ object EnigmaApp extends JFXApp {
       onKeyPressed = e => {
         val c = e.getCode.getChar.toUpperCase.charAt(0)
         keyboard.pressKey(c)
-//        if (Alphabet.alphabet.contains(c) && encodedValue() == null) {
-//          encodedValue() = enigma.encode(c).toString
-//          rotors.indices.foreach(i => {
-//            rotorPositions(i)() = Alphabet(rotors(i).position - 1).toString
-//          })
-//          keyboard.keys(c).strokeWidth = 4
-//          keyboard.keys(c).radius = 14
-//        }
       }
 
       onKeyReleased = e => {
         val c = e.getCode.getChar.toUpperCase.charAt(0)
-//        encodedValue() = null
-//        keyboard.keys(c).strokeWidth = 2
-//        keyboard.keys(c).radius = 15
         keyboard.releaseKey(c)
       }
     }
