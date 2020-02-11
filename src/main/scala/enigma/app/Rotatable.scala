@@ -13,7 +13,7 @@ trait Rotatable extends Node {node =>
 
   rotationAxis = Rotate.XAxis
 
-  var currentPosition = 0
+  var currentPosition = 1
 
   private var previousY: Option[Double] = None
   onDragDetected = e => {
@@ -31,10 +31,9 @@ trait Rotatable extends Node {node =>
           sectionsMoved = -sectionsMoved
         }
         var positionToMove = currentPosition + sectionsMoved
-        while (positionToMove < 0) {
+        while (positionToMove < 1) {
           positionToMove += 26
         }
-        positionToMove += 1
         rotateTo(positionToMove)
         previousY = Some(y)
       }
@@ -48,11 +47,9 @@ trait Rotatable extends Node {node =>
     }
   }
 
-  // Both the numbers and the whole rotor are getting their angle from
-  // currentPosition but they need two different positions
   def rotateTo(newPosition: Int, duration: Int = 200): Unit = {
     val relativeCurrentPosition = currentPosition % 26
-    var diff = relativeCurrentPosition - newPosition + 1
+    var diff = relativeCurrentPosition - newPosition
     if (diff > 13) {
       diff -= 26
     } else if (diff < -13) {
@@ -60,8 +57,8 @@ trait Rotatable extends Node {node =>
     }
     val absolutePosition = currentPosition - diff
     val trans = new RotateTransition(new Duration(duration), node)
-    trans.setFromAngle(currentPosition * Rotor.degAngle)
-    trans.setToAngle(absolutePosition * Rotor.degAngle)
+    trans.setFromAngle((currentPosition - 1) * Rotor.degAngle)
+    trans.setToAngle((absolutePosition - 1) * Rotor.degAngle)
     trans.play()
     currentPosition = absolutePosition
     onRotated(newPosition)
