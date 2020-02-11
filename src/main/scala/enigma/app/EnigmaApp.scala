@@ -16,7 +16,7 @@ object EnigmaApp extends JFXApp {
     Rotor.III('A'),
   )
 
-  private val rotorPositions = rotors.map(rotor => IntegerProperty(rotor.position))
+  private val rotorPositions = rotors.map(rotor => IntegerProperty(rotor.getPosition))
 
   private val enigma = Enigma(
     rotors.head,
@@ -34,7 +34,7 @@ object EnigmaApp extends JFXApp {
     c => {
       encodedValue() = enigma.encode(c).toString
       rotors.indices.foreach(i => {
-        rotorPositions(i)() = rotors(i).position
+        rotorPositions(i)() = rotors(i).getPosition
       })
     },
     _ => encodedValue() = null
