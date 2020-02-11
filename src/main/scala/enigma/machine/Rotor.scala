@@ -10,10 +10,14 @@ sealed abstract class Rotor(
     private var setting: Int = 1,
     private var position: Int = 1
 ) {
-    // The internal wiring of the rotor as a string of letters mapped to the
-    // alphabet when the rotor is at setting 1.
+    /**
+     * The internal wiring of the rotor as a string of letters mapped to the
+     * alphabet when the rotor is at setting 1.
+     */
     val wiring: String
-    // The point at which the next rotor along should step up.
+    /**
+     * The point at which the next rotor along should step up.
+     */
     val turnover: Int
 
     validateIndex(setting)
