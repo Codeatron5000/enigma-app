@@ -9,7 +9,7 @@ case class Enigma(slowRotor: Rotor, mediumRotor: Rotor, fastRotor: Rotor, reflec
     throw new DuplicateRotorsException
   }
 
-  var plugBoard: PlugBoard = PlugBoard(substitutions)
+  var plugBoard: PlugBoard = new PlugBoard(substitutions)
 
   def setPositions(slowPosition: Char, mediumPosition: Char, fastPosition: Char): Unit = {
     slowRotor.setPosition(slowPosition)

@@ -86,8 +86,8 @@ class Connection(
   strokeLineCap = StrokeLineCap.Round
   cursor = Cursor.Crosshair
   onMouseClicked = _ => {
-    val newSubstitutions = enigma.plugBoard.substitutions.filterNot(matchSub => sub == matchSub)
-    enigma.plugBoard = PlugBoard(newSubstitutions)
+    val newSubstitutions = enigma.plugBoard.connections.filterNot(matchSub => sub == matchSub)
+    enigma.plugBoard = new PlugBoard(newSubstitutions)
     linkPane.children.remove(this)
   }
 }
