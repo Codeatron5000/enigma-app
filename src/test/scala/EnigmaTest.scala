@@ -3,7 +3,7 @@ import org.scalatest.FunSuite
 
 class EnigmaTest extends FunSuite {
   test("The enigma package can encode a value") {
-    val enigma = Enigma(
+    val enigma = new Enigma(
       Rotor.I(3),
       Rotor.II(4),
       Rotor.III(5),
@@ -25,7 +25,7 @@ class EnigmaTest extends FunSuite {
   }
 
   test("The enigma rotors rotate") {
-    val enigma = Enigma(
+    val enigma = new Enigma(
       Rotor.I(3),
       Rotor.II(4),
       Rotor.III(5),
@@ -44,7 +44,7 @@ class EnigmaTest extends FunSuite {
 
   test("The rotors passed to the enigma machine must be unique") {
     assertThrows[DuplicateRotorsException] {
-      Enigma(
+      new Enigma(
         Rotor.I(3),
         Rotor.I(4),
         Rotor.III(5),
@@ -61,7 +61,7 @@ class EnigmaTest extends FunSuite {
   }
 
   test("The rotor positions must be between 1 and 26") {
-    val enigma = Enigma(
+    val enigma = new Enigma(
       Rotor.I(3),
       Rotor.II(4),
       Rotor.III(5),
@@ -76,7 +76,7 @@ class EnigmaTest extends FunSuite {
 
   test("Plug board connections cannot clash") {
     assertThrows[PlugBoardConflictException] {
-      Enigma(
+      new Enigma(
         Rotor.I(3),
         Rotor.II(4),
         Rotor.III(5),
@@ -87,7 +87,7 @@ class EnigmaTest extends FunSuite {
   }
 
   test("The enigma package can encode and decode a string") {
-    val enigma = Enigma(
+    val enigma = new Enigma(
       Rotor.IV('M'),
       Rotor.III('R'),
       Rotor.V('D'),

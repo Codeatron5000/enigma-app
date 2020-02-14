@@ -112,8 +112,7 @@ class PlugBoard(scene: Scene, enigma: Enigma) extends Pane {pane =>
         val (_, initialCircle, initialLetter) = newConnection.get
         try {
           val newSub = (initialLetter, letter)
-          val newSubstitutions = enigma.plugBoard.connections:+ newSub
-          enigma.plugBoard = new MachinePlugBoard(newSubstitutions)
+          enigma.plugBoard.addConnection(newSub)
 
           removeNewConnection()
 

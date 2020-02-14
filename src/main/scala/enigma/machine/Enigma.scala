@@ -22,7 +22,7 @@ case class Enigma(
         fastRotor: Rotor,
         reflector: Reflector,
         connections: Seq[(Char, Char)]
-    ) = {
+    ) {
         this(
             slowRotor,
             mediumRotor,

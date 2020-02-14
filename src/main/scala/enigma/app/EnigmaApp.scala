@@ -18,7 +18,7 @@ object EnigmaApp extends JFXApp {
 
   private val rotorPositions = rotors.map(rotor => IntegerProperty(rotor.getPosition))
 
-  private val enigma = Enigma(
+  private val enigma = new Enigma(
     rotors.head,
     rotors(1),
     rotors(2),
