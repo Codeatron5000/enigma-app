@@ -58,7 +58,7 @@ class PlugBoard(private var connectionSeq: Seq[(Char, Char)]) {
      * There is no need to validate as any connections can be removed.
      */
     def removeConnection(connection: (Char, Char)): Unit = {
-        connectionSeq = connectionSeq.filter(_ == connection)
+        connectionSeq = connectionSeq.filterNot(_ == connection)
     }
 
     /**

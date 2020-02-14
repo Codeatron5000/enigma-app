@@ -7,14 +7,14 @@ package enigma.machine
  * @param mediumRotor The middle rotor
  * @param fastRotor The right most rotor that moves on each character
  * @param reflector The reflector, can be either B or C
- * @param connections A sequence of plug board substitutions
+ * @param plugBoard A sequence of plug board substitutions
  */
 case class Enigma(
-    slowRotor: Rotor,
-    mediumRotor: Rotor,
-    fastRotor: Rotor,
-    reflector: Reflector,
-    plugBoard: PlugBoard
+    var slowRotor: Rotor,
+    var mediumRotor: Rotor,
+    var fastRotor: Rotor,
+    var reflector: Reflector,
+    var plugBoard: PlugBoard
 ) {
     def this(
         slowRotor: Rotor,

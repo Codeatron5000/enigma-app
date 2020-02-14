@@ -26,7 +26,7 @@ class Connection(
   secondConnector: Circle,
   sub: (Char, Char),
   linkPane: Pane,
-  enigma: Enigma
+  enigma: EnigmaProperty
 ) extends CubicCurve {
   def middlePoint(
     startX: Double,
@@ -86,7 +86,7 @@ class Connection(
   strokeLineCap = StrokeLineCap.Round
   cursor = Cursor.Crosshair
   onMouseClicked = _ => {
-    enigma.plugBoard.removeConnection(sub)
+    enigma.removeConnection(sub)
     linkPane.children.remove(this)
   }
 }

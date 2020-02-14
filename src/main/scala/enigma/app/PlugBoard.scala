@@ -15,7 +15,7 @@ import scalafx.scene.shape.{Circle, Line, Rectangle, StrokeLineCap}
 import scalafx.scene.text.{Font, Text}
 import scalafx.Includes._
 
-class PlugBoard(scene: Scene, enigma: Enigma) extends Pane {pane =>
+class PlugBoard(scene: Scene, enigma: EnigmaProperty) extends Pane {pane =>
 
   var newConnection: Option[(Line, Circle, Char)] = None
 
@@ -112,7 +112,7 @@ class PlugBoard(scene: Scene, enigma: Enigma) extends Pane {pane =>
         val (_, initialCircle, initialLetter) = newConnection.get
         try {
           val newSub = (initialLetter, letter)
-          enigma.plugBoard.addConnection(newSub)
+          enigma.addConnection(newSub)
 
           removeNewConnection()
 
@@ -135,7 +135,7 @@ class PlugBoard(scene: Scene, enigma: Enigma) extends Pane {pane =>
 
   linkPane.onMouseDragExited = _ => removeNewConnection()
 
-  private val connections = enigma.plugBoard.connections.map(sub => {
+  private val connections = enigma.connections().map(sub => {
 
     val firstConnector: Circle = letterConnectors(sub._1)
     val secondConnector: Circle = letterConnectors(sub._2)
