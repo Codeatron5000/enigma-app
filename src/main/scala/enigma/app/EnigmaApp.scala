@@ -1,6 +1,6 @@
 package enigma.app
 
-import enigma.machine.{ Enigma, Reflector, Rotor }
+import enigma.machine.{ Reflector, Rotor }
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.beans.property.{ IntegerProperty, StringProperty }
@@ -28,16 +28,14 @@ object EnigmaApp extends JFXApp {
 
     private val encodedValue = new StringProperty
 
-    private val keyboard = new Keyboard(
-        c => {
-            encodedValue() = enigma.encode(c).toString
-            rotors.indices.foreach(i => {
-                rotorPositions(i)() = rotors(i).getPosition
-            }
-            )
-        },
-        _ => encodedValue() = null
-    )
+    private val keyboard = new Keyboard()
+    keyboard.onKeyDown(c => {
+        encodedValue() = enigma.encode(c).toString
+        rotors.indices.foreach(i => {
+            rotorPositions(i)() = rotors(i).getPosition
+        })
+    })
+    keyboard.onKeyUp(_ => encodedValue() = null)
 
     new PrimaryStage {
         scene = new Scene(600, 800) {

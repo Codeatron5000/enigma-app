@@ -43,15 +43,21 @@ class EnigmaProperty(
 
     // The settings of each rotor have a property so that they can change the
     // enigma machine when they change.
-    val slowRotorPosition: IntegerProperty = IntegerProperty(initialSlowRotor.getPosition)
+    val slowRotorPosition: IntegerProperty = {
+        IntegerProperty(initialSlowRotor.getPosition)
+    }
     slowRotorPosition.onChange((position, _, _) => {
         enigma.slowRotor.setPosition(position())
     })
-    val mediumRotorPosition: IntegerProperty = IntegerProperty(initialMediumRotor.getPosition)
+    val mediumRotorPosition: IntegerProperty = {
+        IntegerProperty(initialMediumRotor.getPosition)
+    }
     mediumRotorPosition.onChange((position, _, _) => {
         enigma.mediumRotor.setPosition(position())
     })
-    val fastRotorPosition: IntegerProperty = IntegerProperty(initialFastRotor.getPosition)
+    val fastRotorPosition: IntegerProperty = {
+        IntegerProperty(initialFastRotor.getPosition)
+    }
     fastRotorPosition.onChange((position, _, _) => {
         enigma.fastRotor.setPosition(position())
     })
@@ -59,7 +65,9 @@ class EnigmaProperty(
     // The plug board connections have a property which is updated when the
     // addConnection and removeConnection methods are called. That then
     // updates the enigma object.
-    val connections: ObjectProperty[Seq[(Char, Char)]] = ObjectProperty(initialConnections)
+    val connections: ObjectProperty[Seq[(Char, Char)]] = {
+        ObjectProperty(initialConnections)
+    }
     connections.onChange((connections, _, _) => {
         enigma.plugBoard = new PlugBoard(connections())
     })
