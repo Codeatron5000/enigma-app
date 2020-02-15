@@ -15,9 +15,9 @@ class EnigmaTest extends FunSuite {
 
     assert(enigma.encode('A') == 'K')
 
-    assert(enigma.fastRotor.getPosition == 4)
-    assert(enigma.mediumRotor.getPosition == 4)
-    assert(enigma.slowRotor.getPosition == 5)
+    assert(enigma.fastRotor.position == 4)
+    assert(enigma.mediumRotor.position == 4)
+    assert(enigma.slowRotor.position == 5)
 
     enigma.setPositions(5, 4, 3)
 
@@ -37,9 +37,9 @@ class EnigmaTest extends FunSuite {
 
     assert(enigma.encode('A') == 'R')
 
-    assert(enigma.fastRotor.getPosition == 24)
-    assert(enigma.mediumRotor.getPosition == 6)
-    assert(enigma.slowRotor.getPosition == 6)
+    assert(enigma.fastRotor.position == 24)
+    assert(enigma.mediumRotor.position == 6)
+    assert(enigma.slowRotor.position == 6)
   }
 
   test("The rotors passed to the enigma machine must be unique") {

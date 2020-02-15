@@ -51,18 +51,18 @@ case class Enigma(
      * Change the positions of the three rotors using letters.
      */
     def setPositions(slowPosition: Char, mediumPosition: Char, fastPosition: Char): Unit = {
-        slowRotor.setPosition(slowPosition)
-        mediumRotor.setPosition(mediumPosition)
-        fastRotor.setPosition(fastPosition)
+        slowRotor.position = slowPosition
+        mediumRotor.position = mediumPosition
+        fastRotor.position = fastPosition
     }
 
     /**
      * Change the positions of the three rotors using numbers.
      */
     def setPositions(slowPosition: Int, mediumPosition: Int, fastPosition: Int): Unit = {
-        slowRotor.setPosition(slowPosition)
-        mediumRotor.setPosition(mediumPosition)
-        fastRotor.setPosition(fastPosition)
+        slowRotor.position = slowPosition
+        mediumRotor.position = mediumPosition
+        fastRotor.position = fastPosition
     }
 
     /**

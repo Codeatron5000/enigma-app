@@ -3,12 +3,12 @@ package enigma.machine
 /**
  * Defines the behaviour of the rotor tumblers.
  *
- * @param setting The orientation of the numbers in the tumbler.
- * @param position The position of the tumbler in the machine.
+ * @param _setting The orientation of the numbers in the tumbler.
+ * @param _position The position of the tumbler in the machine.
  */
 sealed abstract class Rotor(
-    private var setting: Int = 1,
-    private var position: Int = 1
+    private var _setting: Int = 1,
+    private var _position: Int = 1
 ) {
     /**
      * The internal wiring of the rotor as a string of letters mapped to the
@@ -20,8 +20,8 @@ sealed abstract class Rotor(
      */
     val turnover: Int
 
-    validateIndex(setting)
-    validateIndex(position)
+    validateIndex(_setting)
+    validateIndex(_position)
 
     /**
      * Ensure the index is between 1 and 26.
@@ -50,14 +50,14 @@ sealed abstract class Rotor(
      */
     def sequence: Seq[Int] = {
         val sequence = wiring.toCharArray.toSeq
-        (sequence.slice(26 - setting + 1, 26) ++
-            sequence.slice(0, 26 - setting + 1)).map(Alphabet.indexOf)
+        (sequence.slice(26 - _setting + 1, 26) ++
+            sequence.slice(0, 26 - _setting + 1)).map(Alphabet.indexOf)
     }
 
     /**
      * Should the tumbler trigger the next tumbler over to turn?
      */
-    def shouldCarry: Boolean = position == turnover
+    def shouldCarry: Boolean = _position == turnover
 
     /**
      * Should the tumbler trigger the next tumbler over to turn based on the
@@ -67,31 +67,31 @@ sealed abstract class Rotor(
      */
     def shouldCarry(nextRotor: Rotor): Boolean = {
         shouldCarry ||
-            (position == turnover + 1 &&
-                nextRotor.getPosition == nextRotor.turnover - 1)
+            (_position == turnover + 1 &&
+                nextRotor.position == nextRotor.turnover - 1)
     }
 
-    def setPosition(newPosition: Char): Unit = {
-        setPosition(Alphabet.indexOf(newPosition) + 1)
+    def position_=(newPosition: Char): Unit = {
+        position = Alphabet.indexOf(newPosition) + 1
     }
 
-    def setPosition(newPosition: Int): Unit = {
+    def position_=(newPosition: Int): Unit = {
         validateIndex(newPosition)
-        position = newPosition
+        _position = newPosition
     }
 
-    def getPosition: Int = position
+    def position: Int = _position
 
-    def setSetting(newPosition: Char): Unit = {
-        setSetting(Alphabet.indexOf(newPosition) + 1)
+    def setting_=(newPosition: Char): Unit = {
+        setting = Alphabet.indexOf(newPosition) + 1
     }
 
-    def setSetting(newSetting: Int): Unit = {
+    def setting_=(newSetting: Int): Unit = {
         validateIndex(newSetting)
-        setting = newSetting
+        _setting = newSetting
     }
 
-    def getSetting: Int = setting
+    def setting: Int = _setting
 
     /**
      * Scramble a char through the tumbler.
@@ -119,66 +119,66 @@ sealed abstract class Rotor(
      * Turn the the rotor round round one step
      */
     def step(): Unit = {
-        position += 1
-        if (position > 26) position -= 26
+        _position += 1
+        if (_position > 26) _position -= 26
     }
 }
 
 object Rotor {
 
-    case class I(setting: Int) extends Rotor(setting) {
+    case class I(_setting: Int) extends Rotor(_setting) {
         val wiring: String = "EKMFLGDQVZNTOWYHXUSPAIBRCJ"
         val turnover: Int = 19
 
-        def this(setting: Char) = this(Alphabet.indexOf(setting) + 1)
+        def this(_setting: Char) = this(Alphabet.indexOf(_setting) + 1)
     }
 
     object I {
-        def apply(setting: Char) = new I(setting)
+        def apply(_setting: Char) = new I(_setting)
     }
 
-    case class II(setting: Int) extends Rotor(setting) {
+    case class II(_setting: Int) extends Rotor(_setting) {
         val wiring: String = "AJDKSIRUXBLHWTMCQGZNPYFVOE"
         val turnover: Int = 6
 
-        def this(setting: Char) = this(Alphabet.indexOf(setting) + 1)
+        def this(_setting: Char) = this(Alphabet.indexOf(_setting) + 1)
     }
 
     object II {
-        def apply(setting: Char) = new II(setting)
+        def apply(_setting: Char) = new II(_setting)
     }
 
-    case class III(setting: Int) extends Rotor(setting) {
+    case class III(_setting: Int) extends Rotor(_setting) {
         val wiring: String = "BDFHJLCPRTXVZNYEIWGAKMUSQO"
         val turnover: Int = 23
 
-        def this(setting: Char) = this(Alphabet.indexOf(setting) + 1)
+        def this(_setting: Char) = this(Alphabet.indexOf(_setting) + 1)
     }
 
     object III {
-        def apply(setting: Char) = new III(setting)
+        def apply(_setting: Char) = new III(_setting)
     }
 
-    case class IV(setting: Int) extends Rotor(setting) {
+    case class IV(_setting: Int) extends Rotor(_setting) {
         val wiring: String = "ESOVPZJAYQUIRHXLNFTGKDCMWB"
         val turnover: Int = 11
 
-        def this(setting: Char) = this(Alphabet.indexOf(setting) + 1)
+        def this(_setting: Char) = this(Alphabet.indexOf(_setting) + 1)
     }
 
     object IV {
-        def apply(setting: Char) = new IV(setting)
+        def apply(_setting: Char) = new IV(_setting)
     }
 
-    case class V(setting: Int) extends Rotor(setting) {
+    case class V(_setting: Int) extends Rotor(_setting) {
         val wiring: String = "VZBRGITYUPSDNHLXAWMJQOFECK"
         val turnover: Int = 0
 
-        def this(setting: Char) = this(Alphabet.indexOf(setting) + 1)
+        def this(_setting: Char) = this(Alphabet.indexOf(_setting) + 1)
     }
 
     object V {
-        def apply(setting: Char) = new V(setting)
+        def apply(_setting: Char) = new V(_setting)
     }
 
 }

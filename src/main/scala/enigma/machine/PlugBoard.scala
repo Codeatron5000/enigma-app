@@ -4,7 +4,7 @@ package enigma.machine
  * The plug board contains up to 10 connections that scramble any letter with
  * any other letter.
  */
-class PlugBoard(private var connectionSeq: Seq[(Char, Char)]) {
+class PlugBoard(private var _connections: Seq[(Char, Char)]) {
     /**
      * The plug board cannot have more than 10 connections and no connections
      * can overlap with other connections
@@ -20,7 +20,11 @@ class PlugBoard(private var connectionSeq: Seq[(Char, Char)]) {
         }
     }
 
-    def connections: Seq[(Char, Char)] = connectionSeq
+    def connections: Seq[(Char, Char)] = _connections
+    def connections_=(connections: Seq[(Char, Char)]): Unit = {
+        validateConnections(connections)
+        _connections = connections
+    }
 
     /**
      * Build a map of all the substitutions going in one direction through each
@@ -48,9 +52,7 @@ class PlugBoard(private var connectionSeq: Seq[(Char, Char)]) {
      * added.
      */
     def addConnection(connection: (Char, Char)): Unit = {
-        val newConnections = connections :+ connection
-        validateConnections(newConnections)
-        connectionSeq = newConnections
+        connections = _connections :+ connection
     }
 
     /**
@@ -58,7 +60,7 @@ class PlugBoard(private var connectionSeq: Seq[(Char, Char)]) {
      * There is no need to validate as any connections can be removed.
      */
     def removeConnection(connection: (Char, Char)): Unit = {
-        connectionSeq = connectionSeq.filterNot(_ == connection)
+        _connections = _connections.filterNot(_ == connection)
     }
 
     /**
@@ -71,5 +73,5 @@ class PlugBoard(private var connectionSeq: Seq[(Char, Char)]) {
     /**
      * Validate the connections on first initialising the plug board.
      */
-    validateConnections(connectionSeq)
+    validateConnections(_connections)
 }

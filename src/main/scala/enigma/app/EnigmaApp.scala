@@ -3,7 +3,7 @@ package enigma.app
 import enigma.machine.{ Reflector, Rotor }
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
-import scalafx.beans.property.{ IntegerProperty, StringProperty }
+import scalafx.beans.property.StringProperty
 import scalafx.geometry.Pos
 import scalafx.scene.Scene
 import scalafx.scene.layout.VBox
@@ -15,8 +15,6 @@ object EnigmaApp extends JFXApp {
         Rotor.II(1),
         Rotor.III(1),
     )
-
-    private val rotorPositions = rotors.map(rotor => IntegerProperty(rotor.getPosition))
 
     private val enigma = new EnigmaProperty(
         rotors.head,
@@ -31,9 +29,6 @@ object EnigmaApp extends JFXApp {
     private val keyboard = new Keyboard()
     keyboard.onKeyDown(c => {
         encodedValue() = enigma.encode(c).toString
-        rotors.indices.foreach(i => {
-            rotorPositions(i)() = rotors(i).getPosition
-        })
     })
     keyboard.onKeyUp(_ => encodedValue() = null)
 
@@ -51,7 +46,7 @@ object EnigmaApp extends JFXApp {
                 alignment = Pos.TopCenter
 
                 children = Seq(
-                    new RotorCase(rotorPositions, rotors),
+                    new RotorCase(enigma),
                     new LightBox(encodedValue),
                     keyboard,
                     new PlugBoard(
