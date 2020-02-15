@@ -47,7 +47,7 @@ object EnigmaApp extends JFXApp {
                         onKeyDown((c: Char) => {
                             encodedValue() = enigma.encode(c).toString
                         })
-                        onKeyUp(_ => encodedValue() = null)
+                        onKeyUp(_ => encodedValue() = "")
 
                         enigmaScene.onKeyPressed = e => {
                             val c = e.getCode.getChar.toUpperCase.charAt(0)
