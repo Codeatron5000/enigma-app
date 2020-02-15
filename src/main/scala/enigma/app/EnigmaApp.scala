@@ -62,8 +62,11 @@ object EnigmaApp extends JFXApp {
 
                     new PlugBoard(
                         enigmaScene,
-                        enigma
-                    ),
+                        enigma.connections
+                    ) {
+                        onConnectionAdded(enigma.addConnection)
+                        onConnectionRemoved(enigma.removeConnection)
+                    },
                 )
             })
 
