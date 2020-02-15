@@ -1,7 +1,6 @@
 package enigma.app
 
 import enigma.machine.{ Alphabet, PlugBoardConflictException, PlugBoardOverloadException }
-import scalafx.Includes._
 import scalafx.beans.property.ObjectProperty
 import scalafx.geometry.{ Insets, Pos }
 import scalafx.scene.layout.{ HBox, Pane, VBox }
@@ -15,61 +14,12 @@ class PlugBoard(
     connectionsProperty: ObjectProperty[Seq[(Char, Char)]]
 ) extends Pane { pane =>
 
-    // A list of callbacks to run when a key is being pressed.
-    private var connectionAddedCallbacks: Seq[((Char, Char)) => Unit] = Seq.empty
-    // A list of callbacks to run when a key is released.
-    private var connectionRemovedCallbacks: Seq[((Char, Char)) => Unit] = Seq.empty
-
-    /**
-     * A method for registering callbacks to be run when a connection is added.
-     */
-    def onConnectionAdded(cb: ((Char, Char)) => Unit): Unit = {
-        connectionAddedCallbacks = connectionAddedCallbacks :+ cb
-    }
-
-    /**
-     * A method for registering callbacks to be run when a connection is removed.
-     */
-    def onConnectionRemoved(cb: ((Char, Char)) => Unit): Unit = {
-        connectionRemovedCallbacks = connectionRemovedCallbacks :+ cb
-    }
-
     /**
      * The node that contains all the connections.
      */
     private val connectionPane: Pane = new Pane { linkPane =>
         pickOnBounds = false
     }
-
-    /**
-     * Create a new connection line and add it to the connection pane.
-     */
-    private def addConnection(sub: (Char, Char)) = {
-        val firstCircle = letterConnectors(sub._1)
-        val secondCircle = letterConnectors(sub._2)
-        val connection = new Connection(
-            firstCircle,
-            secondCircle,
-            connectionPane
-        ) {
-            onMouseClicked = _ => {
-                connectionRemovedCallbacks.foreach(cb => cb(sub))
-                removeConnection(this)
-            }
-        }
-        connectionPane.children.add(connection)
-        connection
-    }
-
-    /**
-     * Remove a connection from the connection pane.
-     */
-    private def removeConnection(connection: Connection) = {
-        connectionPane.children.remove(connection)
-    }
-
-    var newConnection: Option[(Line, Char)] = None
-
     private val letterConnectors: Map[Char, Circle] = Map(
         Alphabet.alphabet.map(letter => {
             (letter, new Circle { circle =>
@@ -107,41 +57,81 @@ class PlugBoard(
                     connectionPane.children.add(newLine)
                 }
                 onMouseDragged = e => {
-                    if (newConnection.nonEmpty) {
+                    newConnection.foreach(value => {
                         // Update the line coordinates whenever they move the
                         // mouse but don't let the line go beyond the bounds of
                         // the plug board.
-                        val line = newConnection.get._1
+                        val line = value._1
                         val x = line.startX() + e.getX
                         val y = line.startY() + e.getY
-                        line.endX = if (x <= 0) {
-                            10
-                        } else if (x >= pane.width() - 10) {
-                            pane.width() - 10
-                        } else {
-                            x
+                        line.endX = x match {
+                            case x if x <= 0 => 10
+                            case x if x >= pane.width() - 10 => pane.width() - 10
+                            case x => x
                         }
-                        line.endY = if (y <= 0) {
-                            10
-                        } else if (y >= pane.height() - 10) {
-                            pane.height() - 10
-                        } else {
-                            y
+                        line.endY = y match {
+                            case y if y <= 0 => 10
+                            case y if y >= pane.height() - 10 => pane.height() - 10
+                            case y => y
                         }
-                    }
+                    })
                 }
             })
         }): _*
     )
-
+    private val sceneWidth = scene.width
+    var newConnection: Option[(Line, Char)] = None
+    // A list of callbacks to run when a key is being pressed.
+    private var connectionAddedCallbacks: Seq[((Char, Char)) => Unit] = Seq.empty
+    // A list of callbacks to run when a key is released.
+    private var connectionRemovedCallbacks: Seq[((Char, Char)) => Unit] = Seq.empty
     private var connections = connectionsProperty().map(addConnection)
+
+    /**
+     * A method for registering callbacks to be run when a connection is added.
+     */
+    def onConnectionAdded(cb: ((Char, Char)) => Unit): Unit = {
+        connectionAddedCallbacks = connectionAddedCallbacks :+ cb
+    }
+
+    /**
+     * A method for registering callbacks to be run when a connection is removed.
+     */
+    def onConnectionRemoved(cb: ((Char, Char)) => Unit): Unit = {
+        connectionRemovedCallbacks = connectionRemovedCallbacks :+ cb
+    }
+
+    /**
+     * Create a new connection line and add it to the connection pane.
+     */
+    private def addConnection(sub: (Char, Char)) = {
+        val firstCircle = letterConnectors(sub._1)
+        val secondCircle = letterConnectors(sub._2)
+        val connection = new Connection(
+            firstCircle,
+            secondCircle,
+            connectionPane
+        ) {
+            onMouseClicked = _ => {
+                connectionRemovedCallbacks.foreach(cb => cb(sub))
+                removeConnection(this)
+            }
+        }
+        connectionPane.children.add(connection)
+        connection
+    }
 
     connectionsProperty.onChange((c, _, _) => {
         connections.foreach(removeConnection)
         connections = c().map(addConnection)
     })
 
-    private val sceneWidth = scene.width
+    /**
+     * Remove a connection from the connection pane.
+     */
+    private def removeConnection(connection: Connection) = {
+        connectionPane.children.remove(connection)
+    }
 
     // When the drag is over remove the temporary connection and add the new
     // permanent connection to the closest circle.
@@ -152,19 +142,17 @@ class PlugBoard(
                 Math.abs(relativeCenter.y - e.getY) < 10
         })
 
-        if (closestCircle.nonEmpty) {
+        closestCircle.foreach(value => {
             // When the drag is released we find the closest circle (within 10
             // pixels) create a new permanent connection line and add the
             // substitution to the enigma simulator, then remove the temporary
             // line.
-            val letter = closestCircle.get._1
+            val letter = value._1
             if (newConnection.nonEmpty && newConnection.get._2 != letter) {
                 val (_, initialLetter) = newConnection.get
                 try {
                     val newSub = (initialLetter, letter)
                     connectionAddedCallbacks.foreach(cb => cb(newSub))
-
-                    removeNewConnection()
 
                     addConnection(newSub)
                 } catch {
@@ -174,9 +162,9 @@ class PlugBoard(
                         println("Too many plug board connections")
                 }
             }
-        } else {
-            removeNewConnection()
-        }
+        })
+
+        removeNewConnection()
     }
 
     connectionPane.onMouseDragExited = _ => removeNewConnection()
@@ -190,10 +178,10 @@ class PlugBoard(
     connectionPane.children = connections
 
     private def removeNewConnection(): Unit = {
-        if (newConnection.nonEmpty) {
-            connectionPane.children.remove(newConnection.get._1)
+        newConnection.foreach(value => {
+            connectionPane.children.remove(value._1)
             newConnection = None
-        }
+        })
     }
 
     minWidth <== sceneWidth

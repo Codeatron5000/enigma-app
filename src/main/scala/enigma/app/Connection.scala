@@ -9,14 +9,18 @@ import scalafx.scene.shape.{ Circle, CubicCurve, StrokeLineCap }
 class Connection(
     firstConnector: Circle,
     secondConnector: Circle,
-    linkPane: Pane,
+    connectionPane: Pane,
 ) extends CubicCurve {
+    /**
+     * Recalculate the coordinates of the connection line relative to the parent
+     * pane.
+     */
     def refreshCoords(): Unit = {
-        val firstCenter = Utils.getRelativeCenter(firstConnector, linkPane)
+        val firstCenter = Utils.getRelativeCenter(firstConnector, connectionPane)
         startX = firstCenter.x
         startY = firstCenter.y
 
-        val secondCenter = Utils.getRelativeCenter(secondConnector, linkPane)
+        val secondCenter = Utils.getRelativeCenter(secondConnector, connectionPane)
         endX = secondCenter.x
         endY = secondCenter.y
 
@@ -27,6 +31,10 @@ class Connection(
         controlY2 = middle.y
     }
 
+    /**
+     * Calculate where the middle point of the connection should be after
+     * bending it slightly perpendicular to the line.
+     */
     def middlePoint(
         startX: Double,
         startY: Double,
