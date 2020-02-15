@@ -26,19 +26,12 @@ object EnigmaApp extends JFXApp {
 
     private val encodedValue = new StringProperty
 
-    private val keyboard = new Keyboard()
-    keyboard.onKeyDown(c => {
-        encodedValue() = enigma.encode(c).toString
-    })
-    keyboard.onKeyUp(_ => encodedValue() = null)
-
     new PrimaryStage {
-        scene = new Scene(600, 800) {
-            enigmaScene =>
+        scene = new Scene(600, 800) {enigmaScene =>
             fill = gray(0.1)
             minWidth = 460
 
-            private val layout: VBox = new VBox {
+            getChildren.add(new VBox {
                 minWidth <== enigmaScene.width
                 maxWidth <== enigmaScene.width
                 layoutY = 30
@@ -47,26 +40,33 @@ object EnigmaApp extends JFXApp {
 
                 children = Seq(
                     new RotorCase(enigma),
+
                     new LightBox(encodedValue),
-                    keyboard,
+
+                    new Keyboard {
+                        onKeyDown((c: Char) => {
+                            encodedValue() = enigma.encode(c).toString
+                        })
+                        onKeyUp(_ => encodedValue() = null)
+
+                        enigmaScene.onKeyPressed = e => {
+                            val c = e.getCode.getChar.toUpperCase.charAt(0)
+                            pressKey(c)
+                        }
+
+                        enigmaScene.onKeyReleased = e => {
+                            val c = e.getCode.getChar.toUpperCase.charAt(0)
+                            releaseKey(c)
+                        }
+                    },
+
                     new PlugBoard(
                         enigmaScene,
                         enigma
                     ),
                 )
-            }
+            })
 
-            getChildren.add(layout)
-
-            onKeyPressed = e => {
-                val c = e.getCode.getChar.toUpperCase.charAt(0)
-                keyboard.pressKey(c)
-            }
-
-            onKeyReleased = e => {
-                val c = e.getCode.getChar.toUpperCase.charAt(0)
-                keyboard.releaseKey(c)
-            }
         }
     }
 }
