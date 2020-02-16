@@ -1,6 +1,7 @@
 package enigma.app
 
 import scalafx.animation.{ KeyFrame, KeyValue, Timeline }
+import scalafx.beans.property.IntegerProperty
 import scalafx.geometry.Pos
 import scalafx.scene.Cursor
 import scalafx.scene.layout.{ HBox, StackPane }
@@ -10,10 +11,15 @@ import scalafx.scene.shape.{ Rectangle, Shape }
 import scalafx.scene.transform.Rotate
 import scalafx.util.Duration
 
-class RotorCase(enigma: EnigmaProperty) extends StackPane {
+class RotorCase(
+    slowRotor: RotorProperty,
+    mediumRotor: RotorProperty,
+    fastRotor: RotorProperty
+) extends StackPane {
     private val holes = (0 until 3).map(i => {
         Rectangle(89 + 70 * i, 98, 22, 25)
     })
+
     private val borders = (0 until 3).map(_ => {
         val border = Shape.subtract(
             Rectangle(30, 33),
@@ -22,11 +28,13 @@ class RotorCase(enigma: EnigmaProperty) extends StackPane {
         border.fill = Color.Gray
         border
     })
-    private val rotorPositions = Seq(
-        enigma.slowRotorPosition,
-        enigma.mediumRotorPosition,
-        enigma.fastRotorPosition
+
+    private val rotors = Seq(
+        slowRotor,
+        mediumRotor,
+        fastRotor
     )
+
     private var sheet: Shape = new Rectangle {
         height = 220
         width = 300
@@ -46,21 +54,15 @@ class RotorCase(enigma: EnigmaProperty) extends StackPane {
         new HBox {
             alignment = Pos.Center
             spacing = 30
-            private val cylinders = rotorPositions.indices.map(i => {
-                val position = rotorPositions(i)
-                val rotor = new Rotor(position(), pos => position() = pos)
-                position.onChange((_, _, v) => rotor.rotateTo(v.intValue()))
-                rotor
-            })
+            private val cylinders = rotors.map(new Rotor(_))
 
             children = new Cylinder {
-                override def sectionWidth = 30
+                sectionWidth = 30
 
-                override def sectionStroke: Option[Color] = None
+                sectionStrokeWidth = 0
             } +: cylinders
         },
-        new StackPane {
-            cover =>
+        new StackPane { cover =>
             private var open = false
 
             private val rotation = new Rotate {

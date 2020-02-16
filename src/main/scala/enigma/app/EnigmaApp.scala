@@ -39,7 +39,11 @@ object EnigmaApp extends JFXApp {
                 alignment = Pos.TopCenter
 
                 children = Seq(
-                    new RotorCase(enigma),
+                    new RotorCase(
+                        enigma.slowRotor,
+                        enigma.mediumRotor,
+                        enigma.fastRotor
+                    ),
 
                     new LightBox(encodedValue),
 

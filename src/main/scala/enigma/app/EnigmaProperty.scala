@@ -25,80 +25,23 @@ class EnigmaProperty(
 
     // Each rotor is given a property and updates the enigma machine and the
     // settings property when it is updated.
-    private val _slowRotor: ObjectProperty[Rotor] = ObjectProperty(initialSlowRotor)
-    def slowRotor: ObjectProperty[Rotor] = _slowRotor
-    def slowRotor_=(rotor: Rotor): Unit = slowRotor() = rotor
+    private val _slowRotor = new RotorProperty(initialSlowRotor)
+    def slowRotor: RotorProperty = _slowRotor
+    def slowRotor_=(rotor: Rotor): Unit = _slowRotor.value = rotor
     slowRotor.onChange((_, _, rotor) => {
         enigma.slowRotor = rotor
-        slowRotorPosition() = rotor.position
     })
-    val _mediumRotor: ObjectProperty[Rotor] = ObjectProperty(initialMediumRotor)
-    def mediumRotor: ObjectProperty[Rotor] = _mediumRotor
-    def mediumRotor_=(rotor: Rotor): Unit = mediumRotor() = rotor
+    private val _mediumRotor = new RotorProperty(initialMediumRotor)
+    def mediumRotor: RotorProperty = _mediumRotor
+    def mediumRotor_=(rotor: Rotor): Unit = _mediumRotor.value = rotor
     mediumRotor.onChange((_, _, rotor) => {
         enigma.mediumRotor = rotor
-        mediumRotorPosition() = rotor.position
     })
-    val _fastRotor: ObjectProperty[Rotor] = ObjectProperty(initialFastRotor)
-    def fastRotor: ObjectProperty[Rotor] = _fastRotor
-    def fastRotor_=(rotor: Rotor): Unit = fastRotor() = rotor
+    private val _fastRotor = new RotorProperty(initialFastRotor)
+    def fastRotor: RotorProperty = _fastRotor
+    def fastRotor_=(rotor: Rotor): Unit = _fastRotor.value = rotor
     fastRotor.onChange((_, _, rotor) => {
         enigma.fastRotor = rotor
-        fastRotorPosition() = rotor.position
-    })
-
-    // The positions of each rotor have a property so that they can change the
-    // enigma machine when they change.
-    val _slowRotorPosition: IntegerProperty = {
-        IntegerProperty(initialSlowRotor.position)
-    }
-    def slowRotorPosition: IntegerProperty = _slowRotorPosition
-    def slowRotorPosition_=(position: Int): Unit = slowRotorPosition() = position
-    slowRotorPosition.onChange((position, _, _) => {
-        enigma.slowRotor.position = position()
-    })
-    val _mediumRotorPosition: IntegerProperty = {
-        IntegerProperty(initialMediumRotor.position)
-    }
-    def mediumRotorPosition: IntegerProperty = _mediumRotorPosition
-    def mediumRotorPosition_=(position: Int): Unit = mediumRotorPosition() = position
-    mediumRotorPosition.onChange((position, _, _) => {
-        enigma.mediumRotor.position = position()
-    })
-    val _fastRotorPosition: IntegerProperty = {
-        IntegerProperty(initialFastRotor.position)
-    }
-    def fastRotorPosition: IntegerProperty = _fastRotorPosition
-    def fastRotorPosition_=(position: Int): Unit = fastRotorPosition() = position
-    fastRotorPosition.onChange((position, _, _) => {
-        enigma.fastRotor.position = position()
-    })
-
-    // The settings of each rotor have a property so that they can change the
-    // enigma machine when they change.
-    val _slowRotorSetting: IntegerProperty = {
-        IntegerProperty(initialSlowRotor.setting)
-    }
-    def slowRotorSetting: IntegerProperty = _slowRotorSetting
-    def slowRotorSetting_=(setting: Int): Unit = slowRotorSetting() = setting
-    slowRotorSetting.onChange((setting, _, _) => {
-        enigma.slowRotor.setting = setting()
-    })
-    val _mediumRotorSetting: IntegerProperty = {
-        IntegerProperty(initialMediumRotor.setting)
-    }
-    def mediumRotorSetting: IntegerProperty = _mediumRotorSetting
-    def mediumRotorSetting_=(setting: Int): Unit = mediumRotorSetting() = setting
-    mediumRotorSetting.onChange((setting, _, _) => {
-        enigma.mediumRotor.setting = setting()
-    })
-    val _fastRotorSetting: IntegerProperty = {
-        IntegerProperty(initialFastRotor.setting)
-    }
-    def fastRotorSetting: IntegerProperty = _fastRotorSetting
-    def fastRotorSetting_=(setting: Int): Unit = fastRotorSetting() = setting
-    fastRotorSetting.onChange((setting, _, _) => {
-        enigma.fastRotor.setting = setting()
     })
 
     // The plug board connections have a property which is updated when the
@@ -129,15 +72,9 @@ class EnigmaProperty(
     // A wrapper around the enigma's encode method.
     def encode(c: Char): Char = {
         val result = enigma.encode(c)
-        if (fastRotor().position != fastRotorPosition()) {
-            fastRotorPosition = fastRotor().position
-        }
-        if (mediumRotor().position != mediumRotorPosition()) {
-            mediumRotorPosition = mediumRotor().position
-        }
-        if (slowRotor().position != slowRotorPosition()) {
-            slowRotorPosition = slowRotor().position
-        }
+        fastRotor.sync()
+        mediumRotor.sync()
+        slowRotor.sync()
         result
     }
 }

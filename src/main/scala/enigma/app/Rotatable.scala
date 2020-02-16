@@ -1,66 +1,74 @@
 package enigma.app
 
 import scalafx.animation.RotateTransition
+import scalafx.beans.property.BooleanProperty
 import scalafx.scene.Node
 import scalafx.scene.transform.Rotate
 import scalafx.util.Duration
 
-trait Rotatable extends Node {node =>
-  def startFullDrag(): Unit
-  def disableDrag: Boolean = false
-  def onRotated: Int => Unit = _ => ()
-  def onRotateEnded: () => Unit = () => ()
+trait Rotatable extends Node { node =>
+    var currentPosition = 1
+    private var previousY: Option[Double] = None
 
-  rotationAxis = Rotate.XAxis
+    def startFullDrag(): Unit
 
-  var currentPosition = 1
+    private val _disableDrag: BooleanProperty = BooleanProperty(false)
+    def disableDrag: BooleanProperty = _disableDrag
+    def disableDrag_=(value: Boolean): Unit = _disableDrag() = value
 
-  private var previousY: Option[Double] = None
-  onDragDetected = e => {
-    node.startFullDrag()
-    previousY = Some(e.getSceneY)
-  }
+    rotationAxis = Rotate.XAxis
 
-  onMouseDragged = e => {
-    if (!disableDrag && previousY.nonEmpty) {
-      val y = e.getSceneY
-      val diff = previousY.get - y
-      var sectionsMoved = Math.floor(Math.abs(diff) / 15.0).intValue
-      if (sectionsMoved != 0) {
-        if (diff < 0) {
-          sectionsMoved = -sectionsMoved
+    var onRotateEnded: () => Unit = () => ()
+
+    def rotateTo(newPosition: Int, duration: Int = 200): Unit = {
+        val relativeCurrentPosition = currentPosition % 26
+        var diff = relativeCurrentPosition - newPosition
+        if (diff > 13) {
+            diff -= 26
+        } else if (diff < -13) {
+            diff += 26
         }
-        var positionToMove = currentPosition + sectionsMoved
-        while (positionToMove < 1) {
-          positionToMove += 26
+        val absolutePosition = currentPosition - diff
+        new RotateTransition(new Duration(duration), node) {
+            fromAngle = (currentPosition - 1) * Rotor.degAngle
+            toAngle = (absolutePosition - 1) * Rotor.degAngle
+            play()
         }
-        rotateTo(positionToMove)
-        previousY = Some(y)
-      }
+        currentPosition = absolutePosition
+        onRotated(newPosition)
     }
-  }
+    onDragDetected = e => {
+        node.startFullDrag()
+        previousY = Some(e.getSceneY)
+    }
 
-  onMouseDragReleased = _ => {
-    if (!disableDrag) {
-      previousY = None
-      onRotateEnded()
+    onMouseDragged = e => {
+        if (!disableDrag()) {
+            previousY.foreach(value => {
+                val y = e.getSceneY
+                val diff = value - y
+                var sectionsMoved = Math.floor(Math.abs(diff) / 15.0).intValue
+                if (sectionsMoved != 0) {
+                    if (diff < 0) {
+                        sectionsMoved = -sectionsMoved
+                    }
+                    var positionToMove = currentPosition + sectionsMoved
+                    while (positionToMove < 1) {
+                        positionToMove += 26
+                    }
+                    rotateTo(positionToMove)
+                    previousY = Some(y)
+                }
+            })
+        }
     }
-  }
 
-  def rotateTo(newPosition: Int, duration: Int = 200): Unit = {
-    val relativeCurrentPosition = currentPosition % 26
-    var diff = relativeCurrentPosition - newPosition
-    if (diff > 13) {
-      diff -= 26
-    } else if (diff < -13) {
-      diff += 26
+    onMouseDragReleased = _ => {
+        if (!disableDrag()) {
+            previousY = None
+            onRotateEnded()
+        }
     }
-    val absolutePosition = currentPosition - diff
-    val trans = new RotateTransition(new Duration(duration), node)
-    trans.setFromAngle((currentPosition - 1) * Rotor.degAngle)
-    trans.setToAngle((absolutePosition - 1) * Rotor.degAngle)
-    trans.play()
-    currentPosition = absolutePosition
-    onRotated(newPosition)
-  }
+
+    var onRotated: Int => Unit = _ => ()
 }

@@ -69,6 +69,7 @@ case class Enigma(
      * Encode/decode a letter through the enigma machine.
      */
     def encode(c: Char): Char = {
+        println(s"slow: ${slowRotor.position} ${slowRotor.setting}, medium: ${mediumRotor.position} ${mediumRotor.setting}, fast: ${fastRotor.position} ${fastRotor.setting}")
         // First off we step up the fast rotor.
         fastRotor.step()
 
