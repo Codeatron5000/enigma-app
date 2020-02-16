@@ -8,6 +8,7 @@ import scalafx.geometry.Pos
 import scalafx.scene.Scene
 import scalafx.scene.layout.VBox
 import scalafx.scene.paint.Color._
+import scalafx.scene.shape.Rectangle
 
 object EnigmaApp extends JFXApp {
     private val rotors = Seq(
@@ -70,7 +71,6 @@ object EnigmaApp extends JFXApp {
                     },
                 )
             })
-
         }
     }
 }

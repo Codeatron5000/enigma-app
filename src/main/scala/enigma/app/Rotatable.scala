@@ -1,16 +1,47 @@
 package enigma.app
 
+import javafx.scene.Scene
+import javafx.scene.input.MouseDragEvent
 import scalafx.animation.RotateTransition
 import scalafx.beans.property.BooleanProperty
 import scalafx.scene.Node
 import scalafx.scene.transform.Rotate
 import scalafx.util.Duration
 
+object Rotatable {
+    private var _onDragReleasedCallbacks: Seq[MouseDragEvent => Unit] = Seq.empty
+    def addOnDragReleasedCallback(cb: MouseDragEvent => Unit): Unit = {
+        _onDragReleasedCallbacks = _onDragReleasedCallbacks :+ cb
+    }
+    def removeOnDragReleasedCallback(cb: MouseDragEvent => Unit): Unit = {
+        _onDragReleasedCallbacks = _onDragReleasedCallbacks.filterNot(_ == cb)
+    }
+
+    private var booted = false
+
+    def bootIfNotBooted(scene: Scene): Unit = {
+        if (!booted) {
+            booted = true
+            val originalHandler = scene.getOnMouseDragReleased
+            scene.setOnMouseDragReleased(e => {
+                if (originalHandler != null) {
+                    originalHandler.handle(e)
+                }
+                _onDragReleasedCallbacks.foreach(cb => cb(e))
+            })
+        }
+    }
+}
+
 trait Rotatable extends Node { node =>
+    if (scene() != null) {
+        Rotatable.bootIfNotBooted(scene())
+    } else {
+        scene.onChange((v, _, _) => Rotatable.bootIfNotBooted(v()))
+    }
+
     var currentPosition = 1
     private var previousY: Option[Double] = None
-
-    def startFullDrag(): Unit
 
     private val _disableDrag: BooleanProperty = BooleanProperty(false)
     def disableDrag: BooleanProperty = _disableDrag
@@ -18,7 +49,7 @@ trait Rotatable extends Node { node =>
 
     rotationAxis = Rotate.XAxis
 
-    var onRotateEnded: () => Unit = () => ()
+    var onRotateEnded: () => Unit = () => println("default ended")
 
     def rotateTo(newPosition: Int, duration: Int = 200): Unit = {
         val relativeCurrentPosition = currentPosition % 26
@@ -37,9 +68,19 @@ trait Rotatable extends Node { node =>
         currentPosition = absolutePosition
         onRotated(newPosition)
     }
+
     onDragDetected = e => {
-        node.startFullDrag()
-        previousY = Some(e.getSceneY)
+        if (!disableDrag()) {
+            node.startFullDrag()
+            previousY = Some(e.getSceneY)
+
+            lazy val cb: MouseDragEvent => Unit = (_: MouseDragEvent) => {
+                previousY = None
+                onRotateEnded()
+                Rotatable.removeOnDragReleasedCallback(cb)
+            }
+            Rotatable.addOnDragReleasedCallback(cb)
+        }
     }
 
     onMouseDragged = e => {
@@ -60,13 +101,6 @@ trait Rotatable extends Node { node =>
                     previousY = Some(y)
                 }
             })
-        }
-    }
-
-    onMouseDragReleased = _ => {
-        if (!disableDrag()) {
-            previousY = None
-            onRotateEnded()
         }
     }
 

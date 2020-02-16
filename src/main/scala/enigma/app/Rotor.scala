@@ -3,6 +3,7 @@ package enigma.app
 import scalafx.animation.TranslateTransition
 import scalafx.beans.property.BooleanProperty
 import scalafx.scene.Cursor
+import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout.HBox
 import scalafx.scene.paint.Color.{ Gray, Red, White }
 import scalafx.scene.shape.Rectangle
@@ -16,9 +17,8 @@ object Rotor {
 }
 
 case class Rotor(rotor: RotorProperty) extends HBox with Rotatable { tumbler =>
-
     private val locked = BooleanProperty(true)
-    private val sections = new Cylinder(
+    private val sections: Cylinder = new Cylinder(
         (i, _) => {
             Seq(new Text("%02d".format(i + 1)) {
                 font = Font(13)
@@ -39,7 +39,9 @@ case class Rotor(rotor: RotorProperty) extends HBox with Rotatable { tumbler =>
             isRotating = false
         }
 
-        onRotateEnded = () => tumbler.disableDrag = false
+        onRotateEnded = () => {
+            tumbler.disableDrag = false
+        }
 
 
         rotateTo(rotor.setting(), 0)
