@@ -10,7 +10,6 @@ import scalafx.scene.text.{ Font, Text }
 import scalafx.scene.{ Cursor, Scene }
 
 class PlugBoard(
-    scene: Scene,
     connectionsProperty: ObjectProperty[Seq[(Char, Char)]]
 ) extends Pane { pane =>
 
@@ -79,7 +78,6 @@ class PlugBoard(
             })
         }): _*
     )
-    private val sceneWidth = scene.width
     var newConnection: Option[(Line, Char)] = None
     // A list of callbacks to run when a key is being pressed.
     private var connectionAddedCallbacks: Seq[((Char, Char)) => Unit] = Seq.empty
@@ -173,7 +171,14 @@ class PlugBoard(
      * Because all the connections are created before the scene is fully loaded we
      * need to put them all in the right place when the scene width changes.
      */
-    scene.width.onChange((_, _, _) => connections.map(c => c.refreshCoords()))
+    scene.onChange((v, _, _) => {
+        if (v != null) {
+            minWidth <== v().widthProperty()
+            maxWidth <== v().widthProperty()
+            connections.foreach(c => c.refreshCoords())
+            v().widthProperty().addListener((_, _, _) => connections.map(c => c.refreshCoords()))
+        }
+    })
 
     connectionPane.children = connections
 
@@ -184,8 +189,8 @@ class PlugBoard(
         })
     }
 
-    minWidth <== sceneWidth
-    maxWidth <== sceneWidth
+    minWidth = 600
+    maxWidth = 600
     children = Seq(
         new Rectangle {
             width <== pane.width
@@ -193,7 +198,7 @@ class PlugBoard(
             fill = Black
         },
         new VBox {
-            minWidth <== sceneWidth
+            minWidth <== pane.width
             spacing = 15
             padding = Insets(20)
             children = KeypadOrder().map(row => {
