@@ -49,7 +49,7 @@ trait Rotatable extends Node { node =>
 
     rotationAxis = Rotate.XAxis
 
-    var onRotateEnded: () => Unit = () => println("default ended")
+    var onRotateEnded: () => Unit = () => ()
 
     def rotateTo(newPosition: Int, duration: Int = 200): Unit = {
         val relativeCurrentPosition = currentPosition % 26

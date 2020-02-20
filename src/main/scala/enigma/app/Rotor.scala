@@ -3,7 +3,6 @@ package enigma.app
 import scalafx.animation.TranslateTransition
 import scalafx.beans.property.BooleanProperty
 import scalafx.scene.Cursor
-import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout.HBox
 import scalafx.scene.paint.Color.{ Gray, Red, White }
 import scalafx.scene.shape.Rectangle
@@ -18,6 +17,7 @@ object Rotor {
 
 case class Rotor(rotor: RotorProperty) extends HBox with Rotatable { tumbler =>
     private val locked = BooleanProperty(true)
+    private var sectionsRotating: Boolean = false
     private val sections: Cylinder = new Cylinder(
         (i, _) => {
             Seq(new Text("%02d".format(i + 1)) {
@@ -29,14 +29,14 @@ case class Rotor(rotor: RotorProperty) extends HBox with Rotatable { tumbler =>
 
         sectionFill = White
 
-        var isRotating = false
-
         onRotated = i => {
-            orderSections()
             tumbler.disableDrag = true
-            isRotating = true
+            orderSections()
+            sectionsRotating = true
             rotor.setting = i
-            isRotating = false
+            val newPosition = i + tumbler.currentPosition - 1
+            rotor.position = ((newPosition - 1) % 26) + 1
+            sectionsRotating = false
         }
 
         onRotateEnded = () => {
@@ -46,7 +46,7 @@ case class Rotor(rotor: RotorProperty) extends HBox with Rotatable { tumbler =>
 
         rotateTo(rotor.setting(), 0)
         rotor.setting.onChange((_, _, v) => {
-            if (!isRotating) {
+            if (!sectionsRotating) {
                 rotateTo(v.intValue())
             }
         })
@@ -104,7 +104,8 @@ case class Rotor(rotor: RotorProperty) extends HBox with Rotatable { tumbler =>
         sections.orderSections()
         spacerSections.orderSections()
         isRotating = true
-        rotor.position() = i
+        val newPosition = i + rotor.setting() - 1
+        rotor.position = if (newPosition > 26) newPosition - 26 else newPosition
         isRotating = false
     }
 
@@ -121,8 +122,9 @@ case class Rotor(rotor: RotorProperty) extends HBox with Rotatable { tumbler =>
 
     rotateTo(rotor.position(), 0)
     rotor.position.onChange((_, _, v) => {
-        if (!isRotating) {
-            rotateTo(v.intValue())
+        if (!isRotating && !sectionsRotating) {
+            val newPosition = v.intValue() - rotor.setting() + 1
+            rotateTo(if (newPosition < 1) newPosition + 26 else newPosition)
         }
     })
 }
