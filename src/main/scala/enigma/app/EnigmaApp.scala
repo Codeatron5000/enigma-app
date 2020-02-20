@@ -5,9 +5,11 @@ import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.beans.property.StringProperty
 import scalafx.geometry.Pos
-import scalafx.scene.Scene
-import scalafx.scene.layout.VBox
+import scalafx.scene.{ Cursor, Scene }
+import scalafx.scene.layout.{ StackPane, VBox }
 import scalafx.scene.paint.Color._
+import scalafx.scene.shape.{ Circle, Rectangle }
+import scalafx.scene.text.{ Font, Text }
 
 object EnigmaApp extends JFXApp {
     private val rotors = Seq(
@@ -24,7 +26,19 @@ object EnigmaApp extends JFXApp {
         Seq(('A', 'B'))
     )
 
-    private val encodedValue = new StringProperty
+    private val encodedValue = new StringProperty("")
+    private val cipherStream = new StringProperty("")
+    encodedValue.onChange((_, _, v) => cipherStream() = cipherStream() + v)
+    cipherStream.onChange((_, _, v) => {
+        if (v.length > 3 && !v.substring(v.length - 4).contains(' ')) {
+            cipherStream() = v + " "
+        }
+    })
+    cipherStream.onChange((_, _, v) => {
+        if (v.length > 56) {
+            cipherStream() = v.substring(v.length - 56)
+        }
+    })
 
     new PrimaryStage {
         scene = new Scene(600, 800) {enigmaScene =>
@@ -34,11 +48,39 @@ object EnigmaApp extends JFXApp {
             getChildren.add(new VBox {
                 minWidth <== enigmaScene.width
                 maxWidth <== enigmaScene.width
-                layoutY = 30
                 spacing = 30
                 alignment = Pos.TopCenter
 
                 children = Seq(
+                    new StackPane {
+                        children = Seq(
+                            new Rectangle {
+                                width <== enigmaScene.width
+                                height = 30
+                                fill = gray(0.5, 0.5)
+                            },
+                            new Text {
+                                text <== cipherStream
+                                fill = White
+                                font = Font("Noto Mono", 15)
+                            },
+                            new StackPane {
+                                onMouseClicked = _ => cipherStream() = ""
+                                managed = false
+                                layoutX <== enigmaScene.width
+                                layoutY = 15
+                                translateX = -20
+                                cursor = Cursor.Hand
+                                children = Seq(
+                                    Circle(10, gray(0.9, 0.8)),
+                                    new Text("X") {
+                                        font = Font(15)
+                                    }
+                                )
+                            }
+                        )
+                    },
+
                     new RotorCase(
                         enigma.slowRotor,
                         enigma.mediumRotor,
