@@ -1,15 +1,8 @@
 package enigma.machine
 
-/**
- * Defines the behaviour of the rotor tumblers.
- *
- * @param _setting The orientation of the numbers in the tumbler.
- * @param _position The position of the tumbler in the machine.
- */
-sealed abstract class Rotor(
-    private var _setting: Int = 1,
-    private var _position: Int = 1
-) {
+import enigma.machine.Rotor.I.setting
+
+sealed trait Rotor {
     /**
      * The internal wiring of the rotor as a string of letters mapped to the
      * alphabet when the rotor is at setting 1.
@@ -19,6 +12,9 @@ sealed abstract class Rotor(
      * The point at which the next rotor along should step up.
      */
     val turnover: Int
+
+    private var _setting = 1
+    private var _position = 1
 
     validateIndex(_setting)
     validateIndex(_position)
@@ -122,64 +118,44 @@ sealed abstract class Rotor(
         _position += 1
         if (_position > 26) _position -= 26
     }
+
+
+    def apply(_setting: Char): Rotor = {
+        setting = Alphabet.indexOf(_setting) + 1
+        this
+    }
+
+    def apply(_setting: Int): Rotor = {
+        setting = _setting
+        this
+    }
 }
 
 object Rotor {
 
-    case class I(_setting: Int) extends Rotor(_setting) {
+    object I extends Rotor {
         val wiring: String = "EKMFLGDQVZNTOWYHXUSPAIBRCJ"
         val turnover: Int = 19
-
-        def this(_setting: Char) = this(Alphabet.indexOf(_setting) + 1)
     }
 
-    object I {
-        def apply(_setting: Char) = new I(_setting)
-    }
-
-    case class II(_setting: Int) extends Rotor(_setting) {
+    object II extends Rotor {
         val wiring: String = "AJDKSIRUXBLHWTMCQGZNPYFVOE"
         val turnover: Int = 6
-
-        def this(_setting: Char) = this(Alphabet.indexOf(_setting) + 1)
     }
 
-    object II {
-        def apply(_setting: Char) = new II(_setting)
-    }
-
-    case class III(_setting: Int) extends Rotor(_setting) {
+    object III extends Rotor {
         val wiring: String = "BDFHJLCPRTXVZNYEIWGAKMUSQO"
         val turnover: Int = 23
-
-        def this(_setting: Char) = this(Alphabet.indexOf(_setting) + 1)
     }
 
-    object III {
-        def apply(_setting: Char) = new III(_setting)
-    }
-
-    case class IV(_setting: Int) extends Rotor(_setting) {
+    object IV extends Rotor {
         val wiring: String = "ESOVPZJAYQUIRHXLNFTGKDCMWB"
         val turnover: Int = 11
-
-        def this(_setting: Char) = this(Alphabet.indexOf(_setting) + 1)
     }
 
-    object IV {
-        def apply(_setting: Char) = new IV(_setting)
-    }
-
-    case class V(_setting: Int) extends Rotor(_setting) {
+    object V extends Rotor {
         val wiring: String = "VZBRGITYUPSDNHLXAWMJQOFECK"
         val turnover: Int = 0
-
-        def this(_setting: Char) = this(Alphabet.indexOf(_setting) + 1)
     }
-
-    object V {
-        def apply(_setting: Char) = new V(_setting)
-    }
-
 }
 
