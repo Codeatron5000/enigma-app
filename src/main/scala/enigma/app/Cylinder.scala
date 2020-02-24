@@ -49,7 +49,7 @@ class Cylinder(
     fullHeight.onChange((v, _, _) => radius() = v() / (2 * Math.sin(Math.PI / 26)))
 
 
-    private val sections = (0 until 26).map(i => {
+    val sections: Seq[StackPane] = (0 until 26).map(i => {
         val fromAngle = i * Cylinder.radAngle
         new StackPane { pane =>
             translateY = radius() * Math.sin(fromAngle)

@@ -44,12 +44,15 @@ trait Rotatable extends Node { node =>
     private var previousY: Option[Double] = None
 
     private val _disableDrag: BooleanProperty = BooleanProperty(false)
+    private var dragging = false
     def disableDrag: BooleanProperty = _disableDrag
     def disableDrag_=(value: Boolean): Unit = _disableDrag() = value
 
     rotationAxis = Rotate.XAxis
 
     var onRotateEnded: () => Unit = () => ()
+
+    var onClicked: () => Unit = () => ()
 
     def rotateTo(newPosition: Int, duration: Int = 200): Unit = {
         val relativeCurrentPosition = currentPosition % 26
@@ -71,6 +74,7 @@ trait Rotatable extends Node { node =>
 
     onDragDetected = e => {
         if (!disableDrag()) {
+            dragging = true
             node.startFullDrag()
             previousY = Some(e.getSceneY)
 
@@ -101,6 +105,14 @@ trait Rotatable extends Node { node =>
                     previousY = Some(y)
                 }
             })
+        }
+    }
+
+    onMouseClicked = _ => {
+        if (!dragging) {
+            onClicked()
+        } else {
+            dragging = false
         }
     }
 

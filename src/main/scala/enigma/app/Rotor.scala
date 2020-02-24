@@ -1,5 +1,6 @@
 package enigma.app
 
+import javafx.geometry.Point3D
 import scalafx.animation.TranslateTransition
 import scalafx.beans.property.BooleanProperty
 import scalafx.scene.Cursor
@@ -109,15 +110,17 @@ case class Rotor(rotor: RotorProperty) extends HBox with Rotatable { tumbler =>
         isRotating = false
     }
 
+    private val gear = new Cylinder {
+        sectionWidth = 5
+        sectionHeight = 24
+        sectionFill = Gray
+        disableDrag = true
+    }
+
     children = Seq(
         sections,
         spacerSections,
-        new Cylinder {
-            sectionWidth = 5
-            sectionHeight = 24
-            sectionFill = Gray
-            disableDrag = true
-        }
+        gear
     )
 
     rotateTo(rotor.position(), 0)
@@ -127,4 +130,5 @@ case class Rotor(rotor: RotorProperty) extends HBox with Rotatable { tumbler =>
             rotateTo(if (newPosition < 1) newPosition + 26 else newPosition)
         }
     })
+
 }
