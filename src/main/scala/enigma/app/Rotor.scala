@@ -69,7 +69,8 @@ case class Rotor(rotor: RotorProperty) extends HBox with Rotatable { tumbler =>
                     trans.play()
                 })
 
-                pane.onMouseClicked = _ => {
+                pane.onMouseClicked = e => {
+                    e.consume()
                     locked.value = !locked()
                 }
 
@@ -94,6 +95,16 @@ case class Rotor(rotor: RotorProperty) extends HBox with Rotatable { tumbler =>
         sectionFill = Gray
         sectionStrokeWidth = 0
         disableDrag = true
+    }
+
+    var onClicked: () => Unit = () => ()
+
+    onMouseClicked = _ => {
+        if (!dragging) {
+            onClicked()
+        } else {
+            dragging = false
+        }
     }
 
     cursor = Cursor.Hand

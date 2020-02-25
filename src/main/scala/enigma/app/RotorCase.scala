@@ -14,11 +14,7 @@ import scalafx.scene.text.{ Font, Text }
 import scalafx.scene.transform.Rotate
 import scalafx.util.Duration
 
-class RotorCase(
-    slowRotor: Option[Rotor],
-    mediumRotor: Option[Rotor],
-    fastRotor: Option[Rotor]
-) extends StackPane {
+class RotorCase extends StackPane {
     private val holes = (0 until 3).map(i => {
         Rectangle(89 + 70 * i, 98, 22, 25)
     })
@@ -32,12 +28,6 @@ class RotorCase(
         border
     })
 
-    private var rotors = Seq(
-        slowRotor,
-        mediumRotor,
-        fastRotor
-    )
-
     private var sheet: Shape = new Rectangle {
         height = 220
         width = 300
@@ -48,23 +38,21 @@ class RotorCase(
         sheet = Shape.subtract(sheet, hole)
     })
 
-    private var cylinders = rotors.map {
-        case Some(r) => r
-        case _ => Rectangle(40, 100)
-    }
+    private var cylinders: Seq[Node] = Seq(
+        Rectangle(40, 100),
+        Rectangle(40, 100),
+        Rectangle(40, 100),
+    )
+
+    private var reflector: Node = Rectangle(30, 150)
 
     private val rotorBox: HBox = new HBox {
         alignment = Pos.Center
         spacing = 30
-
     }
 
     def buildRotors(): Unit = {
-        rotorBox.children = new Cylinder {
-            sectionWidth = 30
-
-            sectionStrokeWidth = 0
-        } +: cylinders
+        rotorBox.children = reflector +: cylinders
     }
 
     buildRotors()
@@ -90,10 +78,26 @@ class RotorCase(
         placed
     }
 
+    def dropReflector(r: Cylinder): Boolean = {
+        if (
+            reflector.isInstanceOf[Rectangle] &&
+                r.localToScene(r.boundsInLocal()).intersects(reflector.localToScene(reflector.boundsInLocal()))
+        ) {
+            reflector = r
+            buildRotors()
+            true
+        } else false
+    }
+
     def removeRotor(r: Rotor): Unit = {
         cylinders = cylinders.map(c => {
-            if (c == r) Rectangle(40, 100) else c
+            if (c == r) Rectangle(30, 150) else c
         })
+        buildRotors()
+    }
+
+    def removeReflector(): Unit = {
+        reflector = Rectangle(40, 100)
         buildRotors()
     }
 

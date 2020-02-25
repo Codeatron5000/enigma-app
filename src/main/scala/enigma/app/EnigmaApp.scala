@@ -34,6 +34,21 @@ object EnigmaApp extends JFXApp {
         None, None, None
     )
 
+    private var unusedReflectors: mutable.Seq[Option[Cylinder]] = mutable.Seq(
+        Some(new Cylinder {
+            disableDrag = true
+            sectionWidth = 30
+            sectionStrokeWidth = 0
+            cursor = Cursor.Hand
+        }),
+        Some(new Cylinder {
+            disableDrag = true
+            sectionWidth = 30
+            sectionStrokeWidth = 0
+            cursor = Cursor.Hand
+        }),
+    )
+
     private var unusedRotors: mutable.Seq[Option[Rotor]] = mutable.Seq(
         Some(new Rotor(new RotorProperty(MachineRotor.I(1)))),
         Some(new Rotor(new RotorProperty(MachineRotor.II(1)))),
@@ -60,7 +75,7 @@ object EnigmaApp extends JFXApp {
         }
     })
 
-    private val rotorCase = new RotorCase(None, None, None)
+    private val rotorCase = new RotorCase()
 
     new PrimaryStage {
         scene = new Scene(600, 800) {enigmaScene =>
@@ -140,7 +155,7 @@ object EnigmaApp extends JFXApp {
             getChildren.add(
                 new HBox {
                     alignment = Pos.Center
-                    spacing = 80
+                    spacing = 40
                     layoutY = 300
                     scene.onChange((_, _, v) => {
                         if (v != null) {
@@ -148,61 +163,111 @@ object EnigmaApp extends JFXApp {
                         }
                     })
                     private def buildChildren(): Unit = {
-                        children = unusedRotors.map {
-                            case Some(r) => new VBox() {
-                                alignment = Pos.Center
-                                spacing = 20
-                                children = Seq(
-                                    new Text(r.rotor() match {
-                                        case MachineRotor.I => "I"
-                                        case MachineRotor.II => "II"
-                                        case MachineRotor.III => "III"
-                                        case MachineRotor.IV => "IV"
-                                        case MachineRotor.V => "V"
-                                    }) {
-                                        font = Font(30)
-                                        fill = Color.White
-                                    },
-                                    new Group {
-                                        children = Seq(r)
-                                        r.disableDrag = true
+                        children =
+                            unusedReflectors.indices.map(i => {
+                                unusedReflectors(i) match {
+                                    case Some(r) => new VBox() {
+                                        alignment = Pos.Center
+                                        spacing = 20
+                                        children = Seq(
+                                            new Text(if (i == 0) "A" else "B") {
+                                                font = Font(30)
+                                                fill = Color.White
+                                            },
+                                            new Group {
+                                                children = Seq(r)
 
-                                        private var previousLocation: Option[Point2D] = None
+                                                private var previousLocation: Option[Point2D] = None
 
-                                        onDragDetected = e => {
-                                            startFullDrag()
-                                            previousLocation = Some(new Point2D(e.getSceneX, e.getSceneY))
-                                        }
+                                                onDragDetected = e => {
+                                                    startFullDrag()
+                                                    previousLocation = Some(new Point2D(e.getSceneX, e.getSceneY))
+                                                }
 
-                                        onMouseDragged = e => {
-                                            previousLocation.foreach(v => {
-                                                translateX = e.getSceneX - v.x
-                                                translateY = e.getSceneY - v.y
-                                            })
-                                        }
+                                                onMouseDragged = e => {
+                                                    previousLocation.foreach(v => {
+                                                        translateX = e.getSceneX - v.x
+                                                        translateY = e.getSceneY - v.y
+                                                    })
+                                                }
 
-                                        onMouseDragReleased = _ => {
-                                            val placed = rotorCase.dropRotor(r)
-                                            if (placed) {
-                                                val index = unusedRotors.indexOf(Some(r))
-                                                unusedRotors(index) = None
-                                                r.onClicked = () => {
-                                                    rotorCase.removeRotor(r)
-                                                    unusedRotors(index) = Some(r)
-                                                    r.onClicked = () => ()
+                                                onMouseDragReleased = _ => {
+                                                    val placed = rotorCase.dropReflector(r)
+                                                    if (placed) {
+                                                        unusedReflectors(i) = None
+                                                        r.onMouseClicked = _ => {
+                                                            rotorCase.removeReflector()
+                                                            unusedReflectors(i) = Some(r)
+                                                            r.onMouseClicked = _ => ()
+                                                            buildChildren()
+                                                        }
+                                                        buildChildren()
+                                                    }
+                                                    translateX = 0
+                                                    translateY = 0
+                                                    previousLocation = None
+                                                }
+                                            }
+                                        )
+                                    }
+                                    case _ => Rectangle(30, 0)
+                                }
+                            }) ++
+                            unusedRotors.map {
+                                case Some(r) => new VBox() {
+                                    alignment = Pos.Center
+                                    spacing = 20
+                                    children = Seq(
+                                        new Text(r.rotor() match {
+                                            case MachineRotor.I => "I"
+                                            case MachineRotor.II => "II"
+                                            case MachineRotor.III => "III"
+                                            case MachineRotor.IV => "IV"
+                                            case MachineRotor.V => "V"
+                                        }) {
+                                            font = Font(30)
+                                            fill = Color.White
+                                        },
+                                        new Group {
+                                            children = Seq(r)
+                                            r.disableDrag = true
+
+                                            private var previousLocation: Option[Point2D] = None
+
+                                            onDragDetected = e => {
+                                                startFullDrag()
+                                                previousLocation = Some(new Point2D(e.getSceneX, e.getSceneY))
+                                            }
+
+                                            onMouseDragged = e => {
+                                                previousLocation.foreach(v => {
+                                                    translateX = e.getSceneX - v.x
+                                                    translateY = e.getSceneY - v.y
+                                                })
+                                            }
+
+                                            onMouseDragReleased = _ => {
+                                                val placed = rotorCase.dropRotor(r)
+                                                if (placed) {
+                                                    val index = unusedRotors.indexOf(Some(r))
+                                                    unusedRotors(index) = None
+                                                    r.onClicked = () => {
+                                                        rotorCase.removeRotor(r)
+                                                        unusedRotors(index) = Some(r)
+                                                        r.onClicked = () => ()
+                                                        buildChildren()
+                                                    }
                                                     buildChildren()
                                                 }
-                                                buildChildren()
+                                                translateX = 0
+                                                translateY = 0
+                                                previousLocation = None
                                             }
-                                            translateX = 0
-                                            translateY = 0
-                                            previousLocation = None
                                         }
-                                    }
-                                )
+                                    )
+                                }
+                                case _ => Rectangle(40, 0)
                             }
-                            case _ => Rectangle(40, 0)
-                        }
                     }
 
                     buildChildren()
