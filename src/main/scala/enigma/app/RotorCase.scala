@@ -15,6 +15,8 @@ import scalafx.scene.transform.Rotate
 import scalafx.util.Duration
 
 class RotorCase extends StackPane {
+    private var open = false
+
     private val holes = (0 until 3).map(i => {
         Rectangle(89 + 70 * i, 98, 22, 25)
     })
@@ -57,30 +59,34 @@ class RotorCase extends StackPane {
 
     buildRotors()
 
-    def dropRotor(r: Rotor): Boolean = {
-        var placed = false
-        cylinders = cylinders.map(n => {
-            if (
-                !placed &&
-                n.isInstanceOf[Rectangle] &&
-                r.localToScene(r.boundsInLocal()).intersects(n.localToScene(n.boundsInLocal()))
-            ) {
-                placed = true
-                r.disableDrag = false
-                r
-            } else {
-                n
-            }
-        })
-        if (placed) {
-            buildRotors()
+    def dropRotor(r: Rotor): Option[Int] = {
+        var placed: Option[Int] = None
+        if (open) {
+            cylinders = cylinders.indices.map(i => {
+                val n = cylinders(i)
+                if (
+                    placed.isEmpty &&
+                        n.isInstanceOf[Rectangle] &&
+                        r.localToScene(r.boundsInLocal()).intersects(n.localToScene(n.boundsInLocal()))
+                ) {
+                    placed = Some(i)
+                    r.disableDrag = false
+                    r
+                } else {
+                    n
+                }
+            })
+            placed.foreach(_ => {
+                buildRotors()
+            })
         }
         placed
     }
 
     def dropReflector(r: Cylinder): Boolean = {
         if (
-            reflector.isInstanceOf[Rectangle] &&
+            open &&
+                reflector.isInstanceOf[Rectangle] &&
                 r.localToScene(r.boundsInLocal()).intersects(reflector.localToScene(reflector.boundsInLocal()))
         ) {
             reflector = r
@@ -91,15 +97,17 @@ class RotorCase extends StackPane {
 
     def removeRotor(r: Rotor): Unit = {
         cylinders = cylinders.map(c => {
-            if (c == r) Rectangle(30, 150) else c
+            if (c == r) Rectangle(40, 100) else c
         })
         buildRotors()
     }
 
     def removeReflector(): Unit = {
-        reflector = Rectangle(40, 100)
+        reflector = Rectangle(30, 150)
         buildRotors()
     }
+
+    maxWidth = 300
 
     children = Seq(
         new Rectangle {
@@ -109,7 +117,6 @@ class RotorCase extends StackPane {
         },
         rotorBox,
         new StackPane { cover =>
-            private var open = false
 
             private val rotation = new Rotate {
                 pivotX <== cover.translateX

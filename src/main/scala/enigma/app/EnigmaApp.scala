@@ -2,16 +2,18 @@ package enigma.app
 
 import enigma.machine.{ Reflector, Rotor => MachineRotor }
 import javafx.scene.input.MouseDragEvent
+import scalafx.animation.TranslateTransition
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
-import scalafx.beans.property.StringProperty
+import scalafx.beans.property.{ BooleanProperty, StringProperty }
 import scalafx.geometry.{ Point2D, Pos }
 import scalafx.scene.{ Cursor, Group, Scene }
 import scalafx.scene.layout.{ HBox, StackPane, VBox }
 import scalafx.scene.paint.Color
 import scalafx.scene.paint.Color._
-import scalafx.scene.shape.{ Circle, Rectangle }
+import scalafx.scene.shape.{ Circle, Rectangle, Shape }
 import scalafx.scene.text.{ Font, Text }
+import scalafx.util.Duration
 
 import scala.collection.mutable
 
@@ -30,7 +32,7 @@ object EnigmaApp extends JFXApp {
         Seq(('A', 'B'))
     )
 
-    private var usedRotors = Seq(
+    private var usedRotors: mutable.Seq[Option[Rotor]] = mutable.Seq(
         None, None, None
     )
 
@@ -56,6 +58,17 @@ object EnigmaApp extends JFXApp {
         Some(new Rotor(new RotorProperty(MachineRotor.IV(1)))),
         Some(new Rotor(new RotorProperty(MachineRotor.V(1)))),
     )
+
+    private val isSetup = BooleanProperty(false)
+
+    private def updateIsSetup(): Unit = {
+        val allRotorsSet = unusedRotors.count(_.isEmpty) == 3 &&
+            unusedReflectors.count(_.isEmpty) == 1
+
+        if (allRotorsSet != isSetup()) {
+            isSetup() = allRotorsSet
+        }
+    }
 
     private def isDisabled = {
         usedRotors.contains(None)
@@ -124,21 +137,21 @@ object EnigmaApp extends JFXApp {
 
                     new Keyboard {
                         onKeyDown((c: Char) => {
-                            if (isDisabled) {
+                            if (!isDisabled) {
                                 encodedValue() = enigma.encode(c).toString
                             }
                         })
                         onKeyUp(_ => encodedValue() = "")
 
                         enigmaScene.onKeyPressed = e => {
-                            if (isDisabled) {
+                            if (!isDisabled) {
                                 val c = e.getCode.getChar.toUpperCase.charAt(0)
                                 pressKey(c)
                             }
                         }
 
                         enigmaScene.onKeyReleased = e => {
-                            if (isDisabled) {
+                            if (!isDisabled) {
                                 val c = e.getCode.getChar.toUpperCase.charAt(0)
                                 releaseKey(c)
                             }
@@ -152,15 +165,64 @@ object EnigmaApp extends JFXApp {
                 )
             })
 
+            def buildCover: Shape = {
+                val cover = Shape.subtract(new Rectangle {
+                    height = enigmaScene.height()
+                    width = enigmaScene.width()
+                }, new Rectangle {
+                    width = rotorCase.width()
+                    height = rotorCase.height()
+                    layoutX = rotorCase.layoutX()
+                    layoutY = rotorCase.layoutY()
+                })
+                if (isSetup()) {
+                    cover.fill = Color.Transparent
+                } else {
+                    cover.fill = Color.gray(0, 0.5)
+                }
+                cover.mouseTransparent <== isSetup
+                cover
+            }
+
+            private var cover = buildCover
+
+            getChildren.add(cover)
+
+            enigmaScene.width.onChange((_, _, _) => {
+                val index = getChildren.indexOf(cover)
+                cover = buildCover
+                getChildren.set(index, cover)
+            })
+
+            enigmaScene.height.onChange((_, _, _) => {
+                val index = getChildren.indexOf(cover)
+                cover = buildCover
+                getChildren.set(index, cover)
+            })
+
+            isSetup.onChange((_, _, v) =>{
+                if (v) {
+                    cover.fill = Color.Transparent
+                } else {
+                    cover.fill = Color.gray(0, 0.5)
+                }
+            })
+
             getChildren.add(
-                new HBox {
+                new HBox {node =>
                     alignment = Pos.Center
                     spacing = 40
-                    layoutY = 300
+                    layoutY = if (isSetup()) -300 else 300
                     scene.onChange((_, _, v) => {
                         if (v != null) {
                             minWidth <== v.widthProperty()
                         }
+                    })
+
+                    isSetup.onChange((_, _, v) => {
+                        val trans = new TranslateTransition(new Duration(500), node)
+                        trans.toY = if (v) -600 else 0
+                        trans.play()
                     })
                     private def buildChildren(): Unit = {
                         children =
@@ -170,7 +232,7 @@ object EnigmaApp extends JFXApp {
                                         alignment = Pos.Center
                                         spacing = 20
                                         children = Seq(
-                                            new Text(if (i == 0) "A" else "B") {
+                                            new Text(if (i == 0) "B" else "C") {
                                                 font = Font(30)
                                                 fill = Color.White
                                             },
@@ -195,13 +257,19 @@ object EnigmaApp extends JFXApp {
                                                     val placed = rotorCase.dropReflector(r)
                                                     if (placed) {
                                                         unusedReflectors(i) = None
+                                                        i match {
+                                                            case 0 => enigma.reflector = Reflector.B
+                                                            case 1 => enigma.reflector = Reflector.C
+                                                        }
                                                         r.onMouseClicked = _ => {
                                                             rotorCase.removeReflector()
                                                             unusedReflectors(i) = Some(r)
                                                             r.onMouseClicked = _ => ()
                                                             buildChildren()
+                                                            updateIsSetup()
                                                         }
                                                         buildChildren()
+                                                        updateIsSetup()
                                                     }
                                                     translateX = 0
                                                     translateY = 0
@@ -248,7 +316,13 @@ object EnigmaApp extends JFXApp {
 
                                             onMouseDragReleased = _ => {
                                                 val placed = rotorCase.dropRotor(r)
-                                                if (placed) {
+                                                placed.foreach(v => {
+                                                    v match {
+                                                        case 0 => enigma.slowRotor = r.rotor
+                                                        case 1 => enigma.mediumRotor = r.rotor
+                                                        case 2 => enigma.fastRotor = r.rotor
+                                                    }
+                                                    usedRotors(v) = Some(r)
                                                     val index = unusedRotors.indexOf(Some(r))
                                                     unusedRotors(index) = None
                                                     r.onClicked = () => {
@@ -256,9 +330,11 @@ object EnigmaApp extends JFXApp {
                                                         unusedRotors(index) = Some(r)
                                                         r.onClicked = () => ()
                                                         buildChildren()
+                                                        updateIsSetup()
                                                     }
                                                     buildChildren()
-                                                }
+                                                    updateIsSetup()
+                                                })
                                                 translateX = 0
                                                 translateY = 0
                                                 previousLocation = None

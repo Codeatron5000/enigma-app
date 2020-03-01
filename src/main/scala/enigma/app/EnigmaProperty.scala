@@ -25,23 +25,50 @@ class EnigmaProperty(
 
     // Each rotor is given a property and updates the enigma machine and the
     // settings property when it is updated.
-    private val _slowRotor = new RotorProperty(initialSlowRotor)
+    private var _slowRotor = new RotorProperty(initialSlowRotor)
     def slowRotor: RotorProperty = _slowRotor
     def slowRotor_=(rotor: Rotor): Unit = _slowRotor.value = rotor
+    def slowRotor_=(rotor: RotorProperty): Unit = {
+        _slowRotor = rotor
+        enigma.slowRotor = rotor()
+        rotor.onChange((_, _, rotor) => {
+            enigma.slowRotor = rotor
+        })
+    }
     slowRotor.onChange((_, _, rotor) => {
         enigma.slowRotor = rotor
     })
-    private val _mediumRotor = new RotorProperty(initialMediumRotor)
+    private var _mediumRotor = new RotorProperty(initialMediumRotor)
     def mediumRotor: RotorProperty = _mediumRotor
     def mediumRotor_=(rotor: Rotor): Unit = _mediumRotor.value = rotor
+    def mediumRotor_=(rotor: RotorProperty): Unit = {
+        _mediumRotor = rotor
+        enigma.mediumRotor = rotor()
+        rotor.onChange((_, _, rotor) => {
+            enigma.mediumRotor = rotor
+        })
+    }
     mediumRotor.onChange((_, _, rotor) => {
         enigma.mediumRotor = rotor
     })
-    private val _fastRotor = new RotorProperty(initialFastRotor)
+    private var _fastRotor = new RotorProperty(initialFastRotor)
     def fastRotor: RotorProperty = _fastRotor
     def fastRotor_=(rotor: Rotor): Unit = _fastRotor.value = rotor
+    def fastRotor_=(rotor: RotorProperty): Unit = {
+        _fastRotor = rotor
+        enigma.fastRotor = rotor()
+        rotor.onChange((_, _, rotor) => {
+            enigma.fastRotor = rotor
+        })
+    }
     fastRotor.onChange((_, _, rotor) => {
         enigma.fastRotor = rotor
+    })
+    private val _reflector = ObjectProperty[Reflector](initialReflector)
+    def reflector: ObjectProperty[Reflector] = _reflector
+    def reflector_=(reflector: Reflector): Unit = _reflector.value = reflector
+    reflector.onChange((_, _, reflector) => {
+        enigma.reflector = reflector
     })
 
     // The plug board connections have a property which is updated when the
