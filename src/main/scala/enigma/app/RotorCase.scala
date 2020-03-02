@@ -1,20 +1,16 @@
 package enigma.app
 
-import enigma.machine.{ Rotor => MachineRotor }
 import scalafx.animation.{ KeyFrame, KeyValue, Timeline }
-import scalafx.beans.property.IntegerProperty
 import scalafx.geometry.Pos
-import scalafx.scene.effect.DropShadow
-import scalafx.scene.{ Cursor, Group, Node }
-import scalafx.scene.layout.{ HBox, StackPane, VBox }
+import scalafx.scene.{ Cursor, Node }
+import scalafx.scene.layout.{ HBox, StackPane }
 import scalafx.scene.paint.Color
 import scalafx.scene.paint.Color.Black
 import scalafx.scene.shape.{ Rectangle, Shape }
-import scalafx.scene.text.{ Font, Text }
 import scalafx.scene.transform.Rotate
 import scalafx.util.Duration
 
-class RotorCase extends StackPane {
+object RotorCase extends StackPane {
     private var open = false
 
     private val holes = (0 until 3).map(i => {

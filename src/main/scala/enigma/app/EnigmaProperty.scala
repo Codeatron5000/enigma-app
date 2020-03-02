@@ -1,107 +1,78 @@
 package enigma.app
 
-import enigma.machine.{ PlugBoard, Enigma, Reflector, Rotor }
+import enigma.machine.{ Enigma, PlugBoard, Reflector, Rotor }
 import scalafx.beans.property.{ IntegerProperty, ObjectProperty }
+
+import scala.collection.mutable
 
 /**
  * An observable wrapper around the enigma machine that provides properties for
  * each of the settings that can be watched for changes.
  */
-class EnigmaProperty(
-    private val initialSlowRotor: Rotor,
-    private val initialMediumRotor: Rotor,
-    private val initialFastRotor: Rotor,
-    private val initialReflector: Reflector,
-    private val initialConnections: Seq[(Char, Char)]
-) {
-    // The underlying enigma instance.
-    private val enigma = new Enigma(
-        initialSlowRotor: Rotor,
-        initialMediumRotor: Rotor,
-        initialFastRotor: Rotor,
-        initialReflector: Reflector,
-        initialConnections: Seq[(Char, Char)]
-    )
-
+class EnigmaProperty {
+    private val rotors: mutable.Seq[Option[RotorProperty]] = mutable.Seq(None, None, None)
     // Each rotor is given a property and updates the enigma machine and the
     // settings property when it is updated.
-    private var _slowRotor = new RotorProperty(initialSlowRotor)
-    def slowRotor: RotorProperty = _slowRotor
-    def slowRotor_=(rotor: Rotor): Unit = _slowRotor.value = rotor
+    def slowRotor: Option[RotorProperty] = rotors.head
     def slowRotor_=(rotor: RotorProperty): Unit = {
-        _slowRotor = rotor
-        enigma.slowRotor = rotor()
-        rotor.onChange((_, _, rotor) => {
-            enigma.slowRotor = rotor
-        })
+        rotors(0) = Some(rotor)
     }
-    slowRotor.onChange((_, _, rotor) => {
-        enigma.slowRotor = rotor
-    })
-    private var _mediumRotor = new RotorProperty(initialMediumRotor)
-    def mediumRotor: RotorProperty = _mediumRotor
-    def mediumRotor_=(rotor: Rotor): Unit = _mediumRotor.value = rotor
+
+    def mediumRotor: Option[RotorProperty] = rotors.head
     def mediumRotor_=(rotor: RotorProperty): Unit = {
-        _mediumRotor = rotor
-        enigma.mediumRotor = rotor()
-        rotor.onChange((_, _, rotor) => {
-            enigma.mediumRotor = rotor
-        })
+        rotors(1) = Some(rotor)
     }
-    mediumRotor.onChange((_, _, rotor) => {
-        enigma.mediumRotor = rotor
-    })
-    private var _fastRotor = new RotorProperty(initialFastRotor)
-    def fastRotor: RotorProperty = _fastRotor
-    def fastRotor_=(rotor: Rotor): Unit = _fastRotor.value = rotor
+
+    def fastRotor: Option[RotorProperty] = rotors.head
     def fastRotor_=(rotor: RotorProperty): Unit = {
-        _fastRotor = rotor
-        enigma.fastRotor = rotor()
-        rotor.onChange((_, _, rotor) => {
-            enigma.fastRotor = rotor
-        })
+        rotors(2) = Some(rotor)
     }
-    fastRotor.onChange((_, _, rotor) => {
-        enigma.fastRotor = rotor
-    })
-    private val _reflector = ObjectProperty[Reflector](initialReflector)
-    def reflector: ObjectProperty[Reflector] = _reflector
-    def reflector_=(reflector: Reflector): Unit = _reflector.value = reflector
-    reflector.onChange((_, _, reflector) => {
-        enigma.reflector = reflector
-    })
+
+    private var _reflector: Option[Reflector] = None
+    def reflector: Option[Reflector] = _reflector
+    def reflector_=(reflector: Reflector): Unit = _reflector = Some(reflector)
 
     // The plug board connections have a property which is updated when the
     // addConnection and removeConnection methods are called. That then
     // updates the enigma object.
-    val _connections: ObjectProperty[Seq[(Char, Char)]] = {
-        ObjectProperty(initialConnections)
-    }
-    def connections: ObjectProperty[Seq[(Char, Char)]] = _connections
-    def connections_=(newConnections: Seq[(Char, Char)]): Unit = {
-        connections() = newConnections
-    }
-    connections.onChange((connections, _, _) => {
-        enigma.plugBoard = new PlugBoard(connections())
-    })
+    private val _plugBoard: PlugBoard = new PlugBoard(Seq.empty)
+    def connections: Seq[(Char, Char)] = _plugBoard.connections
 
     def addConnection(connection: (Char, Char)): Unit = {
-        connections.value = connections() :+ connection
+        _plugBoard.connections = connections :+ connection
     }
 
     def removeConnection(connection: (Char, Char)): Unit = {
-        val newConnections = connections().filterNot(_ == connection)
-        if (newConnections.size < connections().size) {
-            connections.value = newConnections
+        val newConnections = connections.filterNot(_ == connection)
+        if (newConnections.size < connections.size) {
+            _plugBoard.connections = newConnections
+        }
+    }
+
+    def isDisabled: Boolean = {
+        rotors.exists(_.isEmpty) || reflector.isEmpty
+    }
+
+    def enigma: Option[Enigma] = {
+        if (isDisabled) {
+            None
+        } else {
+            Some(Enigma(
+                rotors.head.get(),
+                rotors(1).get(),
+                rotors(2).get(),
+                reflector.get,
+                _plugBoard
+            ))
         }
     }
 
     // A wrapper around the enigma's encode method.
-    def encode(c: Char): Char = {
-        val result = enigma.encode(c)
-        fastRotor.sync()
-        mediumRotor.sync()
-        slowRotor.sync()
-        result
+    def encode(c: Char): Option[Char] = {
+        enigma.map(v => {
+            val result = v.encode(c)
+            rotors.foreach(_.foreach(_.sync()))
+            result
+        })
     }
 }

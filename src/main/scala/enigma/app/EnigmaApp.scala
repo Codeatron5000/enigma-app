@@ -1,7 +1,6 @@
 package enigma.app
 
-import enigma.machine.{ Reflector, Rotor => MachineRotor }
-import javafx.scene.input.MouseDragEvent
+import enigma.machine.{ Reflector => MachineReflector, Rotor => MachineRotor }
 import scalafx.animation.TranslateTransition
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
@@ -18,40 +17,26 @@ import scalafx.util.Duration
 import scala.collection.mutable
 
 object EnigmaApp extends JFXApp {
-    private val rotors = Seq(
-        MachineRotor.I(1),
-        MachineRotor.II(1),
-        MachineRotor.III(1),
-    )
 
-    private val enigma = new EnigmaProperty(
-        rotors.head,
-        rotors(1),
-        rotors(2),
-        Reflector.B,
-        Seq(('A', 'B'))
-    )
+    private val enigma = new EnigmaProperty
 
-    private var usedRotors: mutable.Seq[Option[Rotor]] = mutable.Seq(
+    private val usedRotors: mutable.Seq[Option[Rotor]] = mutable.Seq(
         None, None, None
     )
 
-    private var unusedReflectors: mutable.Seq[Option[Cylinder]] = mutable.Seq(
-        Some(new Cylinder {
-            disableDrag = true
-            sectionWidth = 30
-            sectionStrokeWidth = 0
-            cursor = Cursor.Hand
-        }),
-        Some(new Cylinder {
-            disableDrag = true
-            sectionWidth = 30
-            sectionStrokeWidth = 0
-            cursor = Cursor.Hand
-        }),
+    class Reflector extends Cylinder {
+        disableDrag = true
+        sectionWidth = 30
+        sectionStrokeWidth = 0
+        cursor = Cursor.Hand
+    }
+
+    private val unusedReflectors: mutable.Seq[Option[Cylinder]] = mutable.Seq(
+        Some(new Reflector),
+        Some(new Reflector),
     )
 
-    private var unusedRotors: mutable.Seq[Option[Rotor]] = mutable.Seq(
+    private val unusedRotors: mutable.Seq[Option[Rotor]] = mutable.Seq(
         Some(new Rotor(new RotorProperty(MachineRotor.I(1)))),
         Some(new Rotor(new RotorProperty(MachineRotor.II(1)))),
         Some(new Rotor(new RotorProperty(MachineRotor.III(1)))),
@@ -70,10 +55,6 @@ object EnigmaApp extends JFXApp {
         }
     }
 
-    private def isDisabled = {
-        usedRotors.contains(None)
-    }
-
     private val encodedValue = new StringProperty("")
     private val cipherStream = new StringProperty("")
     encodedValue.onChange((_, _, v) => cipherStream() = cipherStream() + v)
@@ -81,14 +62,10 @@ object EnigmaApp extends JFXApp {
         if (v.length > 3 && !v.substring(v.length - 4).contains(' ')) {
             cipherStream() = v + " "
         }
-    })
-    cipherStream.onChange((_, _, v) => {
         if (v.length > 56) {
             cipherStream() = v.substring(v.length - 56)
         }
     })
-
-    private val rotorCase = new RotorCase()
 
     new PrimaryStage {
         scene = new Scene(600, 800) {enigmaScene =>
@@ -102,63 +79,36 @@ object EnigmaApp extends JFXApp {
                 alignment = Pos.TopCenter
 
                 children = Seq(
-                    new StackPane {
-                        children = Seq(
-                            new Rectangle {
-                                width <== enigmaScene.width
-                                height = 30
-                                fill = gray(0.5, 0.5)
-                            },
-                            new Text {
-                                text <== cipherStream
-                                fill = White
-                                font = Font("Noto Mono", 15)
-                            },
-                            new StackPane {
-                                onMouseClicked = _ => cipherStream() = ""
-                                managed = false
-                                layoutX <== enigmaScene.width
-                                layoutY = 15
-                                translateX = -20
-                                cursor = Cursor.Hand
-                                children = Seq(
-                                    Circle(10, gray(0.9, 0.8)),
-                                    new Text("X") {
-                                        font = Font(15)
-                                    }
-                                )
-                            }
-                        )
-                    },
+                    new CipherLine(cipherStream),
 
-                    rotorCase,
+                    RotorCase,
 
                     new LightBox(encodedValue),
 
                     new Keyboard {
                         onKeyDown((c: Char) => {
-                            if (!isDisabled) {
-                                encodedValue() = enigma.encode(c).toString
+                            if (!enigma.isDisabled) {
+                                encodedValue() = enigma.encode(c).get.toString
                             }
                         })
                         onKeyUp(_ => encodedValue() = "")
 
                         enigmaScene.onKeyPressed = e => {
-                            if (!isDisabled) {
+                            if (!enigma.isDisabled) {
                                 val c = e.getCode.getChar.toUpperCase.charAt(0)
                                 pressKey(c)
                             }
                         }
 
                         enigmaScene.onKeyReleased = e => {
-                            if (!isDisabled) {
+                            if (!enigma.isDisabled) {
                                 val c = e.getCode.getChar.toUpperCase.charAt(0)
                                 releaseKey(c)
                             }
                         }
                     },
 
-                    new PlugBoard(enigma.connections) {
+                    new PlugBoard {
                         onConnectionAdded(enigma.addConnection)
                         onConnectionRemoved(enigma.removeConnection)
                     },
@@ -170,10 +120,10 @@ object EnigmaApp extends JFXApp {
                     height = enigmaScene.height()
                     width = enigmaScene.width()
                 }, new Rectangle {
-                    width = rotorCase.width()
-                    height = rotorCase.height()
-                    layoutX = rotorCase.layoutX()
-                    layoutY = rotorCase.layoutY()
+                    width = RotorCase.width()
+                    height = RotorCase.height()
+                    layoutX = RotorCase.layoutX()
+                    layoutY = RotorCase.layoutY()
                 })
                 if (isSetup()) {
                     cover.fill = Color.Transparent
@@ -254,15 +204,15 @@ object EnigmaApp extends JFXApp {
                                                 }
 
                                                 onMouseDragReleased = _ => {
-                                                    val placed = rotorCase.dropReflector(r)
+                                                    val placed = RotorCase.dropReflector(r)
                                                     if (placed) {
                                                         unusedReflectors(i) = None
                                                         i match {
-                                                            case 0 => enigma.reflector = Reflector.B
-                                                            case 1 => enigma.reflector = Reflector.C
+                                                            case 0 => enigma.reflector = MachineReflector.B
+                                                            case 1 => enigma.reflector = MachineReflector.C
                                                         }
                                                         r.onMouseClicked = _ => {
-                                                            rotorCase.removeReflector()
+                                                            RotorCase.removeReflector()
                                                             unusedReflectors(i) = Some(r)
                                                             r.onMouseClicked = _ => ()
                                                             buildChildren()
@@ -315,7 +265,7 @@ object EnigmaApp extends JFXApp {
                                             }
 
                                             onMouseDragReleased = _ => {
-                                                val placed = rotorCase.dropRotor(r)
+                                                val placed = RotorCase.dropRotor(r)
                                                 placed.foreach(v => {
                                                     v match {
                                                         case 0 => enigma.slowRotor = r.rotor
@@ -326,7 +276,7 @@ object EnigmaApp extends JFXApp {
                                                     val index = unusedRotors.indexOf(Some(r))
                                                     unusedRotors(index) = None
                                                     r.onClicked = () => {
-                                                        rotorCase.removeRotor(r)
+                                                        RotorCase.removeRotor(r)
                                                         unusedRotors(index) = Some(r)
                                                         r.onClicked = () => ()
                                                         buildChildren()
