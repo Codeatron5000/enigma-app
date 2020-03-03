@@ -2,21 +2,18 @@ package enigma.app
 
 import scalafx.animation.{ KeyFrame, KeyValue, Timeline }
 import scalafx.geometry.Pos
-import scalafx.scene.{ Cursor, Node }
 import scalafx.scene.layout.{ HBox, StackPane }
 import scalafx.scene.paint.Color
 import scalafx.scene.paint.Color.Black
 import scalafx.scene.shape.{ Rectangle, Shape }
 import scalafx.scene.transform.Rotate
+import scalafx.scene.{ Cursor, Node }
 import scalafx.util.Duration
 
 object RotorCase extends StackPane {
-    private var open = false
-
     private val holes = (0 until 3).map(i => {
         Rectangle(89 + 70 * i, 98, 22, 25)
     })
-
     private val borders = (0 until 3).map(_ => {
         val border = Shape.subtract(
             Rectangle(30, 33),
@@ -25,6 +22,11 @@ object RotorCase extends StackPane {
         border.fill = Color.Gray
         border
     })
+    private val rotorBox: HBox = new HBox {
+        alignment = Pos.Center
+        spacing = 30
+    }
+    private var open = false
 
     private var sheet: Shape = new Rectangle {
         height = 220
@@ -35,25 +37,17 @@ object RotorCase extends StackPane {
     holes.foreach(hole => {
         sheet = Shape.subtract(sheet, hole)
     })
-
     private var cylinders: Seq[Node] = Seq(
         Rectangle(40, 100),
         Rectangle(40, 100),
         Rectangle(40, 100),
     )
-
     private var reflector: Node = Rectangle(30, 150)
 
-    private val rotorBox: HBox = new HBox {
-        alignment = Pos.Center
-        spacing = 30
-    }
 
     def buildRotors(): Unit = {
         rotorBox.children = reflector +: cylinders
     }
-
-    buildRotors()
 
     def dropRotor(r: Rotor): Option[Int] = {
         var placed: Option[Int] = None
@@ -79,6 +73,8 @@ object RotorCase extends StackPane {
         placed
     }
 
+    buildRotors()
+
     def dropReflector(r: Cylinder): Boolean = {
         if (
             open &&
@@ -88,7 +84,9 @@ object RotorCase extends StackPane {
             reflector = r
             buildRotors()
             true
-        } else false
+        } else {
+            false
+        }
     }
 
     def removeRotor(r: Rotor): Unit = {

@@ -10,7 +10,19 @@ import scalafx.scene.text.{ Font, FontWeight, Text }
 /**
  * The light box that lights up the encoded output of the enigma machine.
  */
-class LightBox(encodedValue: StringProperty) extends VBox {
+object LightBox extends VBox {
+    private var encodedValue = new StringProperty()
+
+    /**
+     * Bind the encoded value to the local property.
+     * @param value The string property that will shows the encoded value.
+     * @return
+     */
+    def apply(value: StringProperty): LightBox.type = {
+        encodedValue <== value
+        this
+    }
+
     spacing = 15
     children = KeypadOrder().map(row => {
         new HBox {
@@ -18,6 +30,8 @@ class LightBox(encodedValue: StringProperty) extends VBox {
             spacing = 15
             children = row.map(c => {
                 new StackPane {
+                    // Whenever the encoded value changes update the stroke and
+                    // fill to appear as though it's lighting up.
                     private val color = ObjectProperty(White)
                     private val strokeColor = ObjectProperty(Black)
                     encodedValue.onChange((_, _, v) => {

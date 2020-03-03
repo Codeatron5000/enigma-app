@@ -6,6 +6,14 @@ import scalafx.scene.layout.Pane
 import scalafx.scene.paint.Color.{ Transparent, White }
 import scalafx.scene.shape.{ Circle, CubicCurve, StrokeLineCap }
 
+/**
+ * A line that indicates a connection on the plug board.
+ * The line has a little bend in the middle so it doesn't block as many plug
+ * board holes, and makes it look a bit more authentic.
+ * @param firstConnector The first plug board socket
+ * @param secondConnector The second plug board socket
+ * @param connectionPane The plug board pane
+ */
 class Connection(
     firstConnector: Circle,
     secondConnector: Circle,
@@ -66,6 +74,7 @@ class Connection(
 
     refreshCoords()
 
+    // Bind the connection lines with the location of the plugs
     firstConnector.layoutX.onChange((_, _, _) => refreshCoords())
     firstConnector.layoutY.onChange((_, _, _) => refreshCoords())
     secondConnector.layoutX.onChange((_, _, _) => refreshCoords())

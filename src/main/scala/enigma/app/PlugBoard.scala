@@ -2,20 +2,20 @@ package enigma.app
 
 import enigma.machine.{ Alphabet, PlugBoardConflictException, PlugBoardOverloadException }
 import scalafx.geometry.{ Insets, Pos }
+import scalafx.scene.Cursor
 import scalafx.scene.layout.{ HBox, Pane, VBox }
 import scalafx.scene.paint.Color.{ Black, White, gray }
 import scalafx.scene.shape.{ Circle, Line, Rectangle, StrokeLineCap }
 import scalafx.scene.text.{ Font, Text }
-import scalafx.scene.Scene
 
-class PlugBoard extends Pane { pane =>
-
+object PlugBoard extends Pane { pane =>
     /**
      * The node that contains all the connections.
      */
     private val connectionPane: Pane = new Pane { linkPane =>
         pickOnBounds = false
     }
+
     private val letterConnectors: Map[Char, Circle] = Map(
         Alphabet.alphabet.map(letter => {
             (letter, new Circle { circle =>
@@ -75,12 +75,12 @@ class PlugBoard extends Pane { pane =>
             })
         }): _*
     )
+    private val connections = Seq.empty[Connection]
     var newConnection: Option[(Line, Char)] = None
     // A list of callbacks to run when a key is being pressed.
     private var connectionAddedCallbacks: Seq[((Char, Char)) => Unit] = Seq.empty
     // A list of callbacks to run when a key is released.
     private var connectionRemovedCallbacks: Seq[((Char, Char)) => Unit] = Seq.empty
-    private val connections = Seq.empty[Connection]
 
     /**
      * A method for registering callbacks to be run when a connection is added.
@@ -115,11 +115,6 @@ class PlugBoard extends Pane { pane =>
         connectionPane.children.add(connection)
         connection
     }
-
-//    connectionsProperty.onChange((c, _, _) => {
-//        connections.foreach(removeConnection)
-//        connections = c().map(addConnection)
-//    })
 
     /**
      * Remove a connection from the connection pane.

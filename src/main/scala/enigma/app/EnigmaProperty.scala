@@ -1,7 +1,6 @@
 package enigma.app
 
-import enigma.machine.{ Enigma, PlugBoard, Reflector, Rotor }
-import scalafx.beans.property.{ IntegerProperty, ObjectProperty }
+import enigma.machine.{ Enigma, PlugBoard, Reflector }
 
 import scala.collection.mutable
 
@@ -9,38 +8,39 @@ import scala.collection.mutable
  * An observable wrapper around the enigma machine that provides properties for
  * each of the settings that can be watched for changes.
  */
-class EnigmaProperty {
+object EnigmaProperty {
     private val rotors: mutable.Seq[Option[RotorProperty]] = mutable.Seq(None, None, None)
+    // The plug board connections have a property which is updated when the
+    // addConnection and removeConnection methods are called. That then
+    // updates the enigma object.
+    private val _plugBoard: PlugBoard = new PlugBoard(Seq.empty)
+    private var _reflector: Option[Reflector] = None
+
     // Each rotor is given a property and updates the enigma machine and the
     // settings property when it is updated.
     def slowRotor: Option[RotorProperty] = rotors.head
+
     def slowRotor_=(rotor: RotorProperty): Unit = {
         rotors(0) = Some(rotor)
     }
 
     def mediumRotor: Option[RotorProperty] = rotors.head
+
     def mediumRotor_=(rotor: RotorProperty): Unit = {
         rotors(1) = Some(rotor)
     }
 
     def fastRotor: Option[RotorProperty] = rotors.head
+
     def fastRotor_=(rotor: RotorProperty): Unit = {
         rotors(2) = Some(rotor)
     }
 
-    private var _reflector: Option[Reflector] = None
-    def reflector: Option[Reflector] = _reflector
-    def reflector_=(reflector: Reflector): Unit = _reflector = Some(reflector)
-
-    // The plug board connections have a property which is updated when the
-    // addConnection and removeConnection methods are called. That then
-    // updates the enigma object.
-    private val _plugBoard: PlugBoard = new PlugBoard(Seq.empty)
-    def connections: Seq[(Char, Char)] = _plugBoard.connections
-
     def addConnection(connection: (Char, Char)): Unit = {
         _plugBoard.connections = connections :+ connection
     }
+
+    def connections: Seq[(Char, Char)] = _plugBoard.connections
 
     def removeConnection(connection: (Char, Char)): Unit = {
         val newConnections = connections.filterNot(_ == connection)
@@ -49,10 +49,21 @@ class EnigmaProperty {
         }
     }
 
-    def isDisabled: Boolean = {
-        rotors.exists(_.isEmpty) || reflector.isEmpty
+    // A wrapper around the enigma's encode method.
+    def encode(c: Char): Option[Char] = {
+        enigma.map(v => {
+            val result = v.encode(c)
+            rotors.foreach(_.foreach(_.sync()))
+            result
+        })
     }
 
+    /**
+     * Dynamically build the enigma instance each time you want it. As any of
+     * the components could be missing in which case the enigma machine
+     * wouldn't work.
+     * @return
+     */
     def enigma: Option[Enigma] = {
         if (isDisabled) {
             None
@@ -67,12 +78,15 @@ class EnigmaProperty {
         }
     }
 
-    // A wrapper around the enigma's encode method.
-    def encode(c: Char): Option[Char] = {
-        enigma.map(v => {
-            val result = v.encode(c)
-            rotors.foreach(_.foreach(_.sync()))
-            result
-        })
+    def reflector: Option[Reflector] = _reflector
+
+    def reflector_=(reflector: Reflector): Unit = _reflector = Some(reflector)
+
+    /**
+     * Indicate if the enigma machine is disabled or not.
+     * @return
+     */
+    def isDisabled: Boolean = {
+        rotors.exists(_.isEmpty) || reflector.isEmpty
     }
 }

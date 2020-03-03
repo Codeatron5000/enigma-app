@@ -7,9 +7,27 @@ import scalafx.scene.paint.Color.{ White, gray }
 import scalafx.scene.shape.{ Circle, Rectangle }
 import scalafx.scene.text.{ Font, Text }
 
-class CipherLine(cipherStream: StringProperty) extends StackPane {
+/**
+ * The little bar at the top that shows the encoded/decoded cipher stream.
+ */
+object CipherLine extends StackPane {
+
     private val sceneWidth = DoubleProperty(0)
+    private var cipherStream = new StringProperty
+
+    /**
+     * Bind the cipher stream to the local property.
+     * @param stream The string property that will be displayed on the line.
+     * @return
+     */
+    def apply(stream: StringProperty): CipherLine.type = {
+        cipherStream <== stream
+        this
+    }
+
+    // Binding the line's width to the scene's width.
     scene.onChange((_, _, v) => sceneWidth <== v.widthProperty())
+
     children = Seq(
         new Rectangle {
             width <== sceneWidth
@@ -21,6 +39,7 @@ class CipherLine(cipherStream: StringProperty) extends StackPane {
             fill = White
             font = Font("Noto Mono", 15)
         },
+        // A button to clear the cipher stream.
         new StackPane {
             onMouseClicked = _ => cipherStream() = ""
             managed = false

@@ -8,12 +8,11 @@ import scalafx.scene.paint.Color.{ White, gray }
 import scalafx.scene.shape.Circle
 import scalafx.scene.text.{ Font, Text }
 
-class Keyboard() extends VBox {
+object Keyboard extends VBox {
     // A map of all the letters to their corresponding UI key.
     val keys = Map(
         Alphabet.alphabet.map(letter => {
-            (letter, new Circle {
-                circle =>
+            (letter, new Circle { circle =>
                 radius = 15
                 fill = gray(0.2)
                 strokeWidth = 2
@@ -66,8 +65,8 @@ class Keyboard() extends VBox {
         // First check it is a valid key and if it has been pressed.
         if (
             keys.contains(letter) &&
-            pressedKey.nonEmpty &&
-            pressedKey.get == letter
+                pressedKey.nonEmpty &&
+                pressedKey.get == letter
         ) {
             // Get the corresponding node and remove the highlighting.
             val circle = keys(letter)
