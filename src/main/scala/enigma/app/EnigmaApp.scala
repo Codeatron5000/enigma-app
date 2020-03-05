@@ -49,8 +49,8 @@ object EnigmaApp extends JFXApp {
     private def updateIsSetup(): Unit = {
         val isDisabled = EnigmaProperty.isDisabled
 
-        if (isDisabled != isSetup()) {
-            isSetup() = isDisabled
+        if (isDisabled == isSetup()) {
+            isSetup() = !isDisabled
         }
     }
 
