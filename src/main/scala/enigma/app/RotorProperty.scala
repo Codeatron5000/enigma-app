@@ -30,6 +30,10 @@ class RotorProperty(private var _value: Rotor) {
         onChangeCallbacks.foreach(cb => cb(this, original, rotor))
     }
 
+    /**
+     * Match up the reactive position of the property with the position of the
+     * rotor.
+     */
     def sync(): Unit = {
         if (value.position != _position()) {
             _position() = value.position

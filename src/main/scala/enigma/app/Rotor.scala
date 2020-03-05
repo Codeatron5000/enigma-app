@@ -15,8 +15,25 @@ object Rotor {
     val degAngle: Double = 360.0 / 26.0
 }
 
+/**
+ * The enigma rotors contained 26 connections on each side that scramble the
+ * pressed character depending on the internal wiring, the setting of one side
+ * relative to the other and the position of the rotor inside the machine that
+ * changes with each letter.
+ *
+ * The rotor consists of 3 cylinders. The cylinder of numbers that indicate the
+ * position of the rotor. The spacer cylinder that holds the pin for locking a
+ * configuration. And the gear cylinder that is used to turn the rotor.
+ *
+ * @param rotor The observable rotor property that dictates the position and the
+ *              setting of the rotor.
+ */
 case class Rotor(rotor: RotorProperty) extends HBox with Rotatable { tumbler =>
     private val locked = BooleanProperty(true)
+    // The first cylinder that shows the 26 numbers indicating the rotors
+    // position.
+    // These sections can be rotated separately to the rest of the rotor if the
+    // setting pin is unlocked.
     private val sections: Cylinder = new Cylinder(
         (i, _) => {
             Seq(new Text("%02d".format(i + 1)) {
@@ -50,6 +67,8 @@ case class Rotor(rotor: RotorProperty) extends HBox with Rotatable { tumbler =>
             }
         })
     }
+    // The second cylinder creates a space where the locking pin is, that
+    // indicates the current setting of the rotor.
     private val spacerSections = new Cylinder(
         (i, pane) => {
             if (i == 0) {
@@ -94,12 +113,15 @@ case class Rotor(rotor: RotorProperty) extends HBox with Rotatable { tumbler =>
         sectionStrokeWidth = 0
         disableDrag = true
     }
+    // The final gear cylinder that doesn't really do anything.
     private val gear = new Cylinder {
         sectionWidth = 5
         sectionHeight = 24
         sectionFill = Gray
         disableDrag = true
     }
+    // The onClicked callback is used to remove the rotor from the machine, but
+    // only if the click was not part of a drag.
     var onClicked: () => Unit = () => ()
 
     onMouseClicked = _ => {
@@ -130,6 +152,7 @@ case class Rotor(rotor: RotorProperty) extends HBox with Rotatable { tumbler =>
         gear
     )
 
+    // Map the position of the rotor node to the position on the property.
     rotateTo(rotor.position(), 0)
     rotor.position.onChange((_, _, v) => {
         if (!isRotating && !sectionsRotating) {

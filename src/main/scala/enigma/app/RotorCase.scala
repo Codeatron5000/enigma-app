@@ -10,10 +10,18 @@ import scalafx.scene.transform.Rotate
 import scalafx.scene.{ Cursor, Node }
 import scalafx.util.Duration
 
+/**
+ * The case that holds the three rotors and the reflector.
+ * It has three slots for each rotor that drop into place and one longer slot
+ * on the left for the reflector. There is also a cover that has three holes in
+ * the top to be able to see the position of the rotors.
+ */
 object RotorCase extends StackPane {
+    // The three holes that will be subtracted from the case.
     private val holes = (0 until 3).map(i => {
         Rectangle(89 + 70 * i, 98, 22, 25)
     })
+    // The grey borders that surround the holes.
     private val borders = (0 until 3).map(_ => {
         val border = Shape.subtract(
             Rectangle(30, 33),
@@ -22,12 +30,15 @@ object RotorCase extends StackPane {
         border.fill = Color.Gray
         border
     })
+    // The node that contains the rotors and reflector.
     private val rotorBox: HBox = new HBox {
         alignment = Pos.Center
         spacing = 30
     }
+    // A boolean indicating if the case is open or closed.
     private var open = false
 
+    // The cover that will have the holes removed.
     private var sheet: Shape = new Rectangle {
         height = 220
         width = 300
@@ -37,6 +48,8 @@ object RotorCase extends StackPane {
     holes.foreach(hole => {
         sheet = Shape.subtract(sheet, hole)
     })
+
+    // The placeholders for the rotors and reflector.
     private var cylinders: Seq[Node] = Seq(
         Rectangle(40, 100),
         Rectangle(40, 100),
@@ -45,10 +58,20 @@ object RotorCase extends StackPane {
     private var reflector: Node = Rectangle(30, 150)
 
 
+    /**
+     * Place the rotors or the placeholders in the rotor case based on the
+     * cylinders / reflector variables.
+     */
     def buildRotors(): Unit = {
         rotorBox.children = reflector +: cylinders
     }
 
+    /**
+     * Drop a rotor in position in the case if it is intersecting one of the
+     * placeholders and the case is open.
+     * @param r The rotor node to be dropped inside the rotor case.
+     * @return
+     */
     def dropRotor(r: Rotor): Option[Int] = {
         var placed: Option[Int] = None
         if (open) {
@@ -66,6 +89,7 @@ object RotorCase extends StackPane {
                     n
                 }
             })
+            // If the rotor was placed in the case, rebuild the case.
             placed.foreach(_ => {
                 buildRotors()
             })
@@ -75,6 +99,12 @@ object RotorCase extends StackPane {
 
     buildRotors()
 
+    /**
+     * Drop a reflector into the rotor case if it is intersecting the rotor
+     * placeholder and the case is open.
+     * @param r The reflector node to be dropped inside the rotor case.
+     * @return
+     */
     def dropReflector(r: Cylinder): Boolean = {
         if (
             open &&
@@ -89,6 +119,10 @@ object RotorCase extends StackPane {
         }
     }
 
+    /**
+     * Remove a rotor from the case.
+     * @param r The rotor to be removed.
+     */
     def removeRotor(r: Rotor): Unit = {
         cylinders = cylinders.map(c => {
             if (c == r) Rectangle(40, 100) else c
@@ -96,6 +130,9 @@ object RotorCase extends StackPane {
         buildRotors()
     }
 
+    /**
+     * Remove the reflector from the case if it is there.
+     */
     def removeReflector(): Unit = {
         reflector = Rectangle(30, 150)
         buildRotors()
@@ -122,6 +159,7 @@ object RotorCase extends StackPane {
 
             cursor = Cursor.OpenHand
 
+            // Open and close the cover when it is clicked.
             onMouseClicked = _ => {
                 Timeline(
                     Seq(
