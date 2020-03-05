@@ -245,12 +245,12 @@ object EnigmaApp extends JFXApp {
                             }) ++
                                 unusedRotors.map {
                                     case Some(r) => new DraggableRotor(r) {
-                                        onPlaced = () => {
+                                        onPlaced = (i) => {
                                             val index = unusedRotors.indexOf(Some(r))
                                             unusedRotors(index) = None
                                             r.onClicked = () => {
                                                 RotorCase.removeRotor(r)
-                                                index match {
+                                                i match {
                                                     case 0 => EnigmaProperty.slowRotor = None
                                                     case 1 => EnigmaProperty.mediumRotor = None
                                                     case 2 => EnigmaProperty.fastRotor = None

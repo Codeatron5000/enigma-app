@@ -13,7 +13,7 @@ import scalafx.scene.text.{ Font, Text }
  * @param rotor The rotor node.
  */
 case class DraggableRotor(rotor: Rotor) extends VBox {
-    var onPlaced: () => Unit = () => ()
+    var onPlaced: Int => Unit = _ => ()
 
     alignment = Pos.Center
     spacing = 20
@@ -57,7 +57,7 @@ case class DraggableRotor(rotor: Rotor) extends VBox {
                         case 1 => EnigmaProperty.mediumRotor = rotor.rotor
                         case 2 => EnigmaProperty.fastRotor = rotor.rotor
                     }
-                    onPlaced()
+                    onPlaced(v)
                 })
                 translateX = 0
                 translateY = 0
