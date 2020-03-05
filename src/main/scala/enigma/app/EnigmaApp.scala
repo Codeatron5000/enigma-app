@@ -230,6 +230,7 @@ object EnigmaApp extends JFXApp {
                                             unusedReflectors(i) = None
                                             r.onMouseClicked = _ => {
                                                 RotorCase.removeReflector()
+                                                EnigmaProperty.reflector = None
                                                 unusedReflectors(i) = Some(r)
                                                 r.onMouseClicked = _ => ()
                                                 buildChildren()
@@ -249,6 +250,11 @@ object EnigmaApp extends JFXApp {
                                             unusedRotors(index) = None
                                             r.onClicked = () => {
                                                 RotorCase.removeRotor(r)
+                                                index match {
+                                                    case 0 => EnigmaProperty.slowRotor = None
+                                                    case 1 => EnigmaProperty.mediumRotor = None
+                                                    case 2 => EnigmaProperty.fastRotor = None
+                                                }
                                                 unusedRotors(index) = Some(r)
                                                 r.onClicked = () => ()
                                                 buildChildren()

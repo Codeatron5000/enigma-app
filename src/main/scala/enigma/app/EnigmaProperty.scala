@@ -23,17 +23,26 @@ object EnigmaProperty {
     def slowRotor_=(rotor: RotorProperty): Unit = {
         rotors(0) = Some(rotor)
     }
+    def slowRotor_=(option: Option[RotorProperty]): Unit = {
+        rotors(0) = option
+    }
 
     def mediumRotor: Option[RotorProperty] = rotors.head
 
     def mediumRotor_=(rotor: RotorProperty): Unit = {
         rotors(1) = Some(rotor)
     }
+    def mediumRotor_=(option: Option[RotorProperty]): Unit = {
+        rotors(1) = option
+    }
 
     def fastRotor: Option[RotorProperty] = rotors.head
 
     def fastRotor_=(rotor: RotorProperty): Unit = {
         rotors(2) = Some(rotor)
+    }
+    def fastRotor_=(option: Option[RotorProperty]): Unit = {
+        rotors(2) = option
     }
 
     def addConnection(connection: (Char, Char)): Unit = {
@@ -81,6 +90,7 @@ object EnigmaProperty {
     def reflector: Option[Reflector] = _reflector
 
     def reflector_=(reflector: Reflector): Unit = _reflector = Some(reflector)
+    def reflector_=(option: Option[Reflector]): Unit = _reflector = option
 
     /**
      * Indicate if the enigma machine is disabled or not.

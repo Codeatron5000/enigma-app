@@ -16,6 +16,7 @@ import scalafx.scene.text.{ Font, Text }
 case class DraggableReflector(reflector: Cylinder, letter: Char) extends VBox {
     var onPlaced: () => Unit = () => ()
 
+
     alignment = Pos.Center
     spacing = 20
     children = Seq(
