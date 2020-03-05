@@ -21,7 +21,7 @@ object CipherLine extends StackPane {
      * @return
      */
     def apply(stream: StringProperty): CipherLine.type = {
-        cipherStream <== stream
+        cipherStream <==> stream
         this
     }
 
