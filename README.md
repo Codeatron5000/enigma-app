@@ -21,7 +21,7 @@ or you can clone this repository and run the program through sbt.
 You will need to have a recent version of the JVM installed in your machine for it to work.
 You likely already have it installed, but if not you can follow [this link](https://www.java.com/en/download) to install it.
 
-Download [this link](/target/scala-2.13/EnigmaMachine-assembly-0.1.jar).
+Download [this link](https://github.com/Codeatron5000/enigma-app/raw/master/target/scala-2.13/EnigmaMachine-assembly-0.1.jar).
 
 Navigate to the folder in your terminal or powershell and run `java -jar ./EnigmaMachine-assembly-0.1.jar`.
 
