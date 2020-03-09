@@ -185,6 +185,12 @@ object EnigmaApp extends JFXApp {
                 getChildren.set(index, cover)
             })
 
+            RotorCase.layoutY.onChange((_, _, _) => {
+                val index = getChildren.indexOf(cover)
+                cover = buildCover
+                getChildren.set(index, cover)
+            })
+
             RotorCase.layoutX.onChange((_, _, _) => {
                 val index = getChildren.indexOf(cover)
                 cover = buildCover

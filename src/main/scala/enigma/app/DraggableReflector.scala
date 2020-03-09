@@ -22,7 +22,7 @@ case class DraggableReflector(reflector: Cylinder, letter: Char) extends VBox {
     children = Seq(
         // The label of the reflector.
         new Text(letter.toString) {
-            font = Font(30)
+            font = Font("Arial", 30)
             fill = Color.White
         },
         new Group {

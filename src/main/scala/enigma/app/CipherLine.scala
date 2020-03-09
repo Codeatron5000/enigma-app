@@ -37,7 +37,7 @@ object CipherLine extends StackPane {
         new Text {
             text <== cipherStream
             fill = White
-            font = Font("Noto Mono", 15)
+            font = Font("Courier", 15)
         },
         // A button to clear the cipher stream.
         new StackPane {
@@ -50,7 +50,7 @@ object CipherLine extends StackPane {
             children = Seq(
                 Circle(10, gray(0.9, 0.8)),
                 new Text("X") {
-                    font = Font(15)
+                    font = Font("Arial", 15)
                 }
             )
         }

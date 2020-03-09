@@ -26,7 +26,7 @@ case class DraggableRotor(rotor: Rotor) extends VBox {
             case MachineRotor.IV => "IV"
             case MachineRotor.V => "V"
         }) {
-            font = Font(30)
+            font = Font("Arial", 30)
             fill = Color.White
         },
         new Group {

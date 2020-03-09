@@ -48,7 +48,7 @@ object LightBox extends VBox {
                         new Text {
                             text = c.toString
                             fill <== color
-                            font = Font("Alias", FontWeight.Bold, 15)
+                            font = Font("Arial", FontWeight.Bold, 15)
                         }
                     )
                 }

@@ -92,7 +92,7 @@ object Keyboard extends VBox {
                         new Text {
                             text = c.toString
                             fill = White
-                            font = Font(15)
+                            font = Font("Arial", 15)
                         }
                     )
                     cursor = Cursor.Hand

@@ -37,7 +37,7 @@ case class Rotor(rotor: RotorProperty) extends HBox with Rotatable { tumbler =>
     private val sections: Cylinder = new Cylinder(
         (i, _) => {
             Seq(new Text("%02d".format(i + 1)) {
-                font = Font(13)
+                font = Font("Arial", 13)
             })
         }
     ) {

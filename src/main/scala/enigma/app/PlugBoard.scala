@@ -204,7 +204,7 @@ object PlugBoard extends Pane { pane =>
                                 new Text {
                                     text = c.toString
                                     fill = White
-                                    font = Font(10)
+                                    font = Font("Arial", 10)
                                 },
                                 letterConnectors(c)
                             )
