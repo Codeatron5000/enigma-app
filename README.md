@@ -1,9 +1,9 @@
 # Enigma App
-An accurate simulation of the German enigma machine used in World War II.
+An accurate simulation of the German Enigma machine used in World War II.
 
 ![Enigma demo gif](/resources/enigma-demo.gif)
 
-There were many Enigma machines built leading to and during the second world war of varying complexity.
+There were many Enigma machines built leading up to and during the second world war of varying complexity.
 This simulation is based on the earlier Enigma M3 model.
 
 For reference on how the Enigma machine works check out the
