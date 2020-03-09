@@ -1,5 +1,5 @@
 # Enigma App
-An accurate simulation of the German enigma machine used in world war 2.
+An accurate simulation of the German enigma machine used in World War II.
 
 ![Enigma demo gif](/resources/enigma-demo.gif)
 
