@@ -6,6 +6,8 @@ An accurate simulation of the German Enigma machine used in World War II.
 There were many Enigma machines built leading up to and during the second world war of varying complexity.
 This simulation is based on the earlier Enigma M3 model.
 
+![Enigma machine photo](/resources/enigma-machine.jpg)
+
 For reference on how the Enigma machine works check out the
 [Technical Details of the Enigma Machine](http://users.telenet.be/d.rijmenants/en/enigmatech.htm#top)
 link which has in depth explanations about all the mechanics of the rotors and the plug board.
