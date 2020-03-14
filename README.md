@@ -25,6 +25,7 @@ You likely already have it installed, but if not you can follow [this link](http
 
 Download the file:
 
+- [Windows](https://github.com/Codeatron5000/enigma-app/raw/master/target/scala-2.13/EnigmaMachine-assembly-0.1-windows.jar).
 - [Linux](https://github.com/Codeatron5000/enigma-app/raw/master/target/scala-2.13/EnigmaMachine-assembly-0.1-linux.jar).
 - [MacOS](https://github.com/Codeatron5000/enigma-app/raw/master/target/scala-2.13/EnigmaMachine-assembly-0.1-macos.jar).
 
